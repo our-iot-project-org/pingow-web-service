@@ -1,0 +1,1 @@
+@"c:\users\e1002561\appdata\local\continuum\anacondasuite\python.exe" "c:\users\e1002561\appdata\local\continuum\anacondasuite\Scripts\markdown_py" %*
