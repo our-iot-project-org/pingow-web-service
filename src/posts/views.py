@@ -1,3 +1,5 @@
+from .core import position_relationship
+from .core import messenger
 try:
     from urllib import quote_plus #python 2
 except:
@@ -5,7 +7,7 @@ except:
 
 try:
     from urllib.parse import quote_plus #python 3
-except: 
+except:
     pass
 
 from django.contrib import messages
@@ -27,7 +29,7 @@ from .models import Post
 def post_create(request):
 	if not request.user.is_staff or not request.user.is_superuser:
 		raise Http404
-		
+
 	form = PostForm(request.POST or None, request.FILES or None)
 	if form.is_valid():
 		instance = form.save(commit=False)
@@ -95,7 +97,7 @@ def post_list(request):
 	queryset_list = Post.objects.active() #.order_by("-timestamp")
 	if request.user.is_staff or request.user.is_superuser:
 		queryset_list = Post.objects.all()
-	
+
 	query = request.GET.get("q")
 	if query:
 		queryset_list = queryset_list.filter(
@@ -118,7 +120,7 @@ def post_list(request):
 
 
 	context = {
-		"object_list": queryset, 
+		"object_list": queryset,
 		"title": "List",
 		"page_request_var": page_request_var,
 		"today": today,
@@ -156,3 +158,30 @@ def post_delete(request, slug=None):
 	instance.delete()
 	messages.success(request, "Successfully deleted")
 	return redirect("posts:list")
+
+
+def position_update(request):
+	if request.method == 'POST':
+		print("position_update> This is a POST")
+		return render(request, "debug.html")
+	elif request.method == 'GET':
+		print("position_update> This is a GET")
+		print(request.GET.get('targetPos', ''))
+		print(request.GET.get('currentPos', ''))
+		target = request.GET.get('targetPos', '')
+		current = request.GET.get('currentPos', '')
+		customer = request.GET.get('cusId', '')
+		print("POSITION RELATIONSHIP >> " )
+		rel = position_relationship.get_position_relationship(target,current)
+		print(rel)
+		if rel == "self":
+			textContent = "STATUS UPDATE, CUSTOMER REACHED SHOP!!!!\n"
+			textContent += "Mr/Ms Customer:" + customer
+			messenger.send(target,textContent)
+		elif rel == "neighbour":
+			textContent = "STATUS INITIALIZATION, CUSTOMER IS COMING....\n"
+			textContent += "Mr/Ms Customer:" + customer
+			messenger.send(target,textContent)
+		return render(request, "debug.html")
+	else:
+		raise Http404()

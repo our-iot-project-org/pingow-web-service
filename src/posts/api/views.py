@@ -1,4 +1,8 @@
+from django.http import HttpResponse
+from django.shortcuts import render
+
 from rest_framework.generics import (
+    CreateAPIView,
     DestroyAPIView,
     ListAPIView,
     UpdateAPIView,
@@ -6,8 +10,16 @@ from rest_framework.generics import (
     )
 
 from posts.models import Post
-from .serializers import PostListSerializer, PostDetailSerializer
+from .serializers import (
+    PostCreateSerializer,
+    PostListSerializer,
+    PostDetailSerializer
+    )
 
+
+class PostCreateAPIView(CreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
 
 class PostDetailAPIView(RetrieveAPIView):
     queryset = Post.objects.all()
