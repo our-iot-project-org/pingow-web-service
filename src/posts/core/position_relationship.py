@@ -1,11 +1,11 @@
 def get_position_relationship(positionA, positionB):
     relationship = "no"
     #shopnames
-    shop01 = "1 KFC"
-    shop02 = "2 SONY"
-    shop03 = "3 APPLE"
-    shop04 = "4 BATA"
-    shop05 = "5 SAMSUNG"
+    shop01 = "2"
+    shop02 = "0"
+    shop03 = "1"
+    shop04 = "00"
+    shop05 = "3"
     #mocking data for position relationship
     if ((positionB == "") | (positionB == "")):
         return "nill"
@@ -22,4 +22,4 @@ def get_position_relationship(positionA, positionB):
     if ((positionA == shop05) & (positionB == shop04)):
         return "neighbour"
     if (positionA == positionB):
-        return "self" 
+        return "self"
