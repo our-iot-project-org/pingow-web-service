@@ -7,8 +7,8 @@ def get_position_relationship(positionA, positionB):
     shop04 = "00"
     shop05 = "3"
     #mocking data for position relationship
-    if ((positionB == "") | (positionB == "")):
-        return "nill"
+    if ((positionA == "") | (positionB == "")):
+        return "null string"
     if ((positionA == shop01) & ((positionB == shop03) | (positionB == shop05)) ):
         return "neighbour"
     if ((positionA == shop02) & (positionB == shop04)):
@@ -23,3 +23,4 @@ def get_position_relationship(positionA, positionB):
         return "neighbour"
     if (positionA == positionB):
         return "self"
+    return "undefined"

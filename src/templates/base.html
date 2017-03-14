@@ -2,7 +2,7 @@
 <!--DOCTYPE html -->
 <html>
 <head>
-<title>{% block head_title %}Advancing the Blog{% endblock head_title %}</title>
+<title>{% block head_title %}Pingow API{% endblock head_title %}</title>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
@@ -32,7 +32,7 @@ fjs.parentNode.insertBefore(js, fjs);
 
 
 {% include "messages_display.html" %}
-<div class='container'> 
+<div class='container'>
     <ol class='breadcrumb'>
         <li><a href='{% url "posts:list" %}'>Home</a></li>
         {% block post_detail_link %}
@@ -69,7 +69,7 @@ $(document).ready(function(){
             $(this).addClass("img-responsive");
     })
 
-    
+
 
     var contentInput = $("#id_content");
 
@@ -88,7 +88,7 @@ $(document).ready(function(){
     })
 
     var titleInput = $("#id_title");
-    
+
 
 
     function setTitle(value) {
@@ -116,7 +116,3 @@ $(document).ready(function(){
 
 </body>
 </html>
-
-
-
-

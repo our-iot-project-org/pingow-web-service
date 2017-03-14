@@ -1,5 +1,10 @@
 from .core import position_relationship
 from .core import messenger
+from .core import console_print
+from .core import query_exec
+from django.core import serializers
+from rest_framework.response import Response
+from django.http import JsonResponse
 try:
     from urllib import quote_plus  # python 2
 except:
@@ -157,27 +162,137 @@ def post_delete(request, slug=None):
 
 
 def position_update(request):
-    if request.method == 'POST':
-        print("position_update> This is a POST")
-        return render(request, "debug.html")
-    elif request.method == 'GET':
-        print("position_update> This is a GET")
-        print(request.GET.get('targetPos', ''))
-        print(request.GET.get('currentPos', ''))
-        target = request.GET.get('targetPos', '')
-        current = request.GET.get('currentPos', '')
-        customer = request.GET.get('cusId', '')
-        print("POSITION RELATIONSHIP >> ")
-        rel = position_relationship.get_position_relationship(target, current)
-        print(rel)
-        if rel == "self":
-            textContent = "STATUS UPDATE, CUSTOMER HAS REACHED SHOP!!!!\n"
-            textContent += "Mr/Ms Customer:" + customer
-            messenger.send(target, textContent)
-        elif rel == "neighbour":
-            textContent = "STATUS INITIALIZATION, CUSTOMER IS COMING....\n"
-            textContent += "Mr/Ms Customer:" + customer
-            messenger.send(target, textContent)
-        return render(request, "debug.html")
+    if request.method == 'GET':
+        target = request.GET.get('targetPos', None)
+        current = request.GET.get('currentPos', None)
+        customer = request.GET.get('cusId', None)
+        if (target is None) | (current is None) | (customer is None):
+            response = JsonResponse({'success': False})
+        else:
+            rel = position_relationship.get_position_relationship(target, current)
+            messenger.notify_assistance(rel, customer, current, target)
+            response = JsonResponse({'success': True})
+        return response
+    else:
+        raise Http404()
+
+# cusId, shopId, shopStar, shopAsstStar, trxId=1
+# reviewText="this place is nice"
+# Response: # [success:True]
+def send_review(request):
+    if request.method == 'GET':
+        cusId = request.GET.get('cusId', None)
+        shopId = request.GET.get('shopId', None)
+        shopStar = request.GET.get('shopStar', None)
+        shopAsstStar = request.GET.get('shopAsstStar', None)
+        trxId = request.GET.get('trxId', None)
+        reviewText = request.GET.get('reviewText', '')
+        if (cusId is None) | (shopId is None) | (shopStar is None) | (shopAsstStar is None) |  (trxId is None):
+            response = JsonResponse({'success': False})
+        else:
+            #Commit review to DB
+            response = JsonResponse({'success': True})
+        return response
+    else:
+        raise Http404()
+
+#/get_recommendation_for_shop?
+# cusId=bob&
+# shopId=1
+# Response:
+# [shops: [2,3,5]]
+def get_recommendation_for_shop(request):
+    if request.method == 'GET':
+        cusId = request.GET.get('cusId', None)
+        shopId = request.GET.get('shopId', None)
+        if (cusId is None) | (shopId is None):
+            response = JsonResponse({'status': 'null parameter'})
+        else:
+            #Commit review to DB
+            response = JsonResponse({'shops': '[2,3,5]'})
+        return response
+    else:
+        raise Http404()
+
+#/get_recommendation_for_shop?
+# cusId=bob&
+# productCatId=1
+# Response:
+# [shops: [2,3,5]]
+def get_recommendation_for_product(request):
+    if request.method == 'GET':
+        cusId = request.GET.get('cusId', None)
+        productCatId = request.GET.get('productCatId', None)
+        if (cusId is None) | (productCatId is None):
+            response = JsonResponse({'status': 'null parameter'})
+        else:
+            #Commit review to DB
+            response = JsonResponse({'shops': '[2,3,5]'})
+        return response
+    else:
+        raise Http404()
+
+# /init_trip?
+# cusId=bob&
+# shopId=1
+# Response:
+# [transactionId: 1]
+def init_trip(request):
+    if request.method == 'GET':
+        cusId = request.GET.get('cusId', None)
+        shopId = request.GET.get('shopId', None)
+        if (cusId is None) | (shopId is None):
+            response = JsonResponse({'status': 'null parameter'})
+        else:
+            #Commit review to DB
+            response = JsonResponse({'transactionId': 1})
+        return response
+    else:
+        raise Http404()
+#
+# /get_shop_asst_for_shop?
+# cusId=bob&
+# shopId=1&
+# trxId=1
+# Response:
+# [shopAsstName: "Tracy",
+# shopAsstDesc:"Tracy sells shoes"]
+def get_shop_asst_for_shop(request):
+    if request.method == 'GET':
+        cusId = request.GET.get('cusId', None)
+        shopId = request.GET.get('shopId', None)
+        trxId = request.GET.get('trxId', None)
+        if (cusId is None) | (shopId is None) | (trxId is None):
+            response = JsonResponse({'status': 'null parameter'})
+        else:
+            #Commit review to DB
+            #data  = query_exec.test_custom_sql()
+            #json_data = serializers.serialize('json', data)
+            #response = JsonResponse({json_data})
+                response = JsonResponse({'shopAsstName': "Tracy"})
+        return response
+    else:
+        raise Http404()
+
+# /get_shop_asst_for_shop_and_product?
+# cusId=bob&
+# shopId=1&
+# productId=1&
+# trxId=1
+# Response:
+# [shopAsstName: "Tracy",
+# shopAsstDesc:"Tracy sells shoes"]
+def get_shop_asst_for_shop_and_product(request):
+    if request.method == 'GET':
+        cusId = request.GET.get('cusId', None)
+        shopId = request.GET.get('shopId', None)
+        productId = request.GET.get('productId', None)
+        trxId = request.GET.get('trxId', None)
+        if (cusId is None) | (shopId is None) | (productId is None) | (trxId is None):
+            response = JsonResponse({'status': 'null parameter'})
+        else:
+            #Commit review to DB
+            response = JsonResponse({'shopAsstName': 'Tracy', 'shopAsstDesc':'Tracy sells shoes' })
+        return response
     else:
         raise Http404()
