@@ -62,5 +62,5 @@ docs/_build/
 target/
 
 # Config files
-src/posts/core/para.py
+#src/posts/core/para.py
 Scripts/
