@@ -1,5 +1,7 @@
+from . import constants
+
 def get_position_relationship(positionA, positionB):
-    relationship = "no"
+    relationship = constants.POSITION_REL_NO
     #shopnames
     shop01 = "2"
     shop02 = "0"
@@ -8,19 +10,19 @@ def get_position_relationship(positionA, positionB):
     shop05 = "3"
     #mocking data for position relationship
     if ((positionA == "") | (positionB == "")):
-        return "null string"
+        return constants.VALUE_NULL
     if ((positionA == shop01) & ((positionB == shop03) | (positionB == shop05)) ):
-        return "neighbour"
+        return constants.POSITION_REL_NEARBY
     if ((positionA == shop02) & (positionB == shop04)):
-        return "neighbour"
+        return constants.POSITION_REL_NEARBY
     if ((positionA == shop03) & (positionB == shop05)):
-        return "neighbour"
+        return constants.POSITION_REL_NEARBY
     if ((positionA == shop04) & (positionB == shop05)):
-        return "neighbour"
+        return constants.POSITION_REL_NEARBY
     if ((positionA == shop05) & (positionB == shop04)):
-        return "neighbour"
+        return constants.POSITION_REL_NEARBY
     if ((positionA == shop05) & (positionB == shop04)):
-        return "neighbour"
+        return constants.POSITION_REL_NEARBY
     if (positionA == positionB):
-        return "self"
-    return "undefined"
+        return constants.POSITION_REL_TARGET
+    return constants.VALUE_UNDEFINED

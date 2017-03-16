@@ -17,10 +17,9 @@ def notify_assistance(location_relationship, customer, current, target):
     textContent = "Shop:" + target + " Current Position:" + current + " | Position: " + location_relationship + "\n"
     if location_relationship == "self":
         textContent = "STATUS UPDATE, CUSTOMER HAS REACHED SHOP!!!!\n"
-        textContent += "Mr/Ms Customer:" + customer
+        textContent += "\t Mr/Ms Customer:" + customer
         send(target, textContent)
     elif location_relationship == "neighbour":
         textContent = "STATUS INITIALIZATION, CUSTOMER IS COMING....\n"
-        textContent += "Mr/Ms Customer:" + customer
+        textContent += "\t Mr/Ms Customer:" + customer
         send(target, textContent)
-    console_print.debug_print(textContent)

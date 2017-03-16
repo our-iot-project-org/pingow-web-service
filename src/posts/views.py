@@ -2,6 +2,7 @@ from .core import position_relationship
 from .core import messenger
 from .core import console_print
 from .core import query_exec
+from .core import constants
 from django.core import serializers
 from rest_framework.response import Response
 from django.http import JsonResponse
@@ -161,17 +162,28 @@ def post_delete(request, slug=None):
     return redirect("posts:list")
 
 
+# /position?
+# cusId=bob&
+# targetPos=6&
+# currentPos=6&
+# trxId=1
+# Response:
+# [exit: False,
+# nearby: True]
 def position_update(request):
     if request.method == 'GET':
         target = request.GET.get('targetPos', None)
         current = request.GET.get('currentPos', None)
         customer = request.GET.get('cusId', None)
-        if (target is None) | (current is None) | (customer is None):
-            response = JsonResponse({'success': False})
+        trxId = request.GET.get('trxId', None)
+        if (target is None) | (current is None) | (customer is None) | (trxId is None):
+            response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             rel = position_relationship.get_position_relationship(target, current)
             messenger.notify_assistance(rel, customer, current, target)
-            response = JsonResponse({'success': True})
+            isNearBy = (rel==constants.POSITION_REL_NEARBY)
+            isTarget = (rel==constants.POSITION_REL_TARGET)
+            response = JsonResponse({'exit': False, 'nearby': isNearBy })
         return response
     else:
         raise Http404()
@@ -206,7 +218,7 @@ def get_recommendation_for_shop(request):
         cusId = request.GET.get('cusId', None)
         shopId = request.GET.get('shopId', None)
         if (cusId is None) | (shopId is None):
-            response = JsonResponse({'status': 'null parameter'})
+            response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             #Commit review to DB
             response = JsonResponse({'shops': '[2,3,5]'})
@@ -224,7 +236,7 @@ def get_recommendation_for_product(request):
         cusId = request.GET.get('cusId', None)
         productCatId = request.GET.get('productCatId', None)
         if (cusId is None) | (productCatId is None):
-            response = JsonResponse({'status': 'null parameter'})
+            response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             #Commit review to DB
             response = JsonResponse({'shops': '[2,3,5]'})
@@ -242,7 +254,7 @@ def init_trip(request):
         cusId = request.GET.get('cusId', None)
         shopId = request.GET.get('shopId', None)
         if (cusId is None) | (shopId is None):
-            response = JsonResponse({'status': 'null parameter'})
+            response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             #Commit review to DB
             response = JsonResponse({'transactionId': 1})
@@ -263,7 +275,7 @@ def get_shop_asst_for_shop(request):
         shopId = request.GET.get('shopId', None)
         trxId = request.GET.get('trxId', None)
         if (cusId is None) | (shopId is None) | (trxId is None):
-            response = JsonResponse({'status': 'null parameter'})
+            response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             #Commit review to DB
             #data  = query_exec.test_custom_sql()
@@ -289,7 +301,7 @@ def get_shop_asst_for_shop_and_product(request):
         productId = request.GET.get('productId', None)
         trxId = request.GET.get('trxId', None)
         if (cusId is None) | (shopId is None) | (productId is None) | (trxId is None):
-            response = JsonResponse({'status': 'null parameter'})
+            response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             #Commit review to DB
             response = JsonResponse({'shopAsstName': 'Tracy', 'shopAsstDesc':'Tracy sells shoes' })
