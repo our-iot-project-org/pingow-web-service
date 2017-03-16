@@ -61,4 +61,6 @@ docs/_build/
 # PyBuilder
 target/
 
+# Config files
 src/posts/core/para.py
+Scripts/
