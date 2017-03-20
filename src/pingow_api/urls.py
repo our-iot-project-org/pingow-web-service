@@ -8,7 +8,8 @@ from .views import (
 	get_recommendation_for_product,
 	init_trip_with_shop,
 	init_trip_with_shop_and_product,
-	get_shop_asst
+	get_shop_asst,
+	api_post,
 	)
 
 urlpatterns = [
@@ -19,6 +20,7 @@ urlpatterns = [
 	url(r'^init_trip_with_shop/$', init_trip_with_shop),
 	url(r'^init_trip_with_shop_and_product/$', init_trip_with_shop_and_product),
 	url(r'^get_shop_asst/$', get_shop_asst),
+	url(r'^api_post/$', api_post),
     #url(r'^posts/$', "<appname>.views.<function_name>"),
 
 ]

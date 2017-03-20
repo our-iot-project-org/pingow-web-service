@@ -6,6 +6,7 @@ from .core import constants
 from .core import transaction_factory
 from django.core import serializers
 from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 try:
     from urllib import quote_plus  # python 2
@@ -35,6 +36,7 @@ from django.utils import timezone
 # Response:
 # [exit: False,
 # nearby: True]
+@csrf_exempt
 def position_update(request):
     if request.method == 'GET':
         target = request.GET.get('targetPos', None)
@@ -56,6 +58,9 @@ def position_update(request):
             is_exit = (position_relationship.get_position_status(trxId) == constants.POSITION_STATUS_EXIT)
             print('trxId=',trxId,'\t current=',current,'\t target=',target,'\t is_exit=',is_exit,'\t STATUS=',position_relationship.get_position_status(trxId))
             response = JsonResponse({'exit': is_exit, 'nearby': isNearBy })
+        return response
+    elif request.method == 'POST':
+        response = JsonResponse({'requesting': 'POST REQUEST' })
         return response
     else:
         raise Http404()
@@ -178,6 +183,20 @@ def get_shop_asst(request):
             #json_data = serializers.serialize('json', data)
             #response = JsonResponse({json_data})
                 response = JsonResponse({'shopAsstId':1,'shopAsstName': "Tracy", 'shopAsstDesc':"Tracy sells shoes"})
+        return response
+    else:
+        raise Http404()
+
+body_text = ""
+@csrf_exempt
+def api_post(request):
+    global body_text
+    if request.method == 'POST':
+        body_text = str(request.body)
+        response = JsonResponse({'request.body':body_text})
+        return response
+    elif request.method == 'GET':
+        response = JsonResponse({'request.body':body_text})
         return response
     else:
         raise Http404()

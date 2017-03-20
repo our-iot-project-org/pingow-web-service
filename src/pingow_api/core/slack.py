@@ -33,11 +33,11 @@ def usage():
 ##########################################################
 
 
-def send_slack_msg(sc, receiver_id, text):
+def send_slack_msg(sc, receiver_id, as_user, text):
     bot_name = 'Pingow_Friend'
     bot_icon_emoji = ':dog:'  # ':sparkles:'
 
-    res = sc.api_call("chat.postMessage", channel=receiver_id,
+    res = sc.api_call("chat.postMessage", channel=receiver_id, as_user=as_user,
                       text=text, username=bot_name, icon_emoji=bot_icon_emoji)
     if (str(res['ok']).lower() == 'true'):
         return 0
@@ -53,7 +53,8 @@ def send_slack_msg(sc, receiver_id, text):
 
 
 def send_msg(text):
-	send_slack_msg(_slack_client, '#general', text)
-	#send_slack_msg(_slack_client, _slack_user, text)
-	send_slack_msg(_slack_client, '@zen', text)
+	send_slack_msg(_slack_client, '#general', False, text)
+	# send_slack_msg(_slack_client, _slack_user, True, text)
+	# send_slack_msg(_slack_client, '@zen', True, text)
+	# send_slack_msg(_slack_client, '@zen', False, text)
 	return
