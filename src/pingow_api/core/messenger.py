@@ -10,7 +10,7 @@ def send(reciver_id, content_string):
     msg += "\t" + content_string + "\n"
     msg += "______ SENDING TEXT - END _________"
     console_print.debug_print(msg)
-    #slack.send_msg(msg)
+    slack.send_msg(msg)
 
 #Sending message to assistance
 def notify_assistance(location_relationship, customer, current, target):

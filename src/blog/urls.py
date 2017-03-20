@@ -22,6 +22,7 @@ from django.contrib import admin
 from accounts.views import (login_view, register_view, logout_view)
 
 urlpatterns = [
+    url(r'^', include("pingow_api.urls", namespace='pingow-api')),
 
     url(r'^admin/', admin.site.urls),
     url(r'^comments/', include("comments.urls", namespace='comments')),
@@ -31,6 +32,7 @@ urlpatterns = [
     url(r'^logout/', logout_view, name='logout'),
     url(r'^', include("posts.urls", namespace='posts')),
     url(r'^api/posts/', include("posts.api.urls", namespace='posts-api')),
+
     #url(r'^posts/$', "<appname>.views.<function_name>"),
 ]
 

@@ -25,7 +25,7 @@ SECRET_KEY = 'sm@g)(fbwdh5wc*xe@j++m9rh^uza5se9a57c5ptwkg*b@ki0x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.169.128.37', '127.0.0.1']
+ALLOWED_HOSTS = ['tienduong.pythonanywhere.com', '127.0.0.1']
 
 
 # Application definition
@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     # local apps
     'comments',
     'posts',
-
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
@@ -119,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Singapore'
 
 USE_I18N = True
 
