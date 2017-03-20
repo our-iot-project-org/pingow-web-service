@@ -43,3 +43,62 @@ pip install djangorestframework
    - Now, Check your IP address, by typing IPCONFIG to commandline (IPv4 Address)
    - Copy and Paste this IP to a file name **`settings.py`** located at "`pingow-web-service\src\blog\settings.py`"; find a variable name "`ALLOWED_HOST`" to add this IP to that. 
    - Save the file. That's done.
+   
+   
+# APIs:
+
+~~~~
+/position?
+cusId=bob&
+targetPos=6&
+currentPos=6&
+trxId=1&
+asst=True
+Response: 
+[exit: False,
+nearby: True]
+
+/send_review?
+cusId=bob&
+shopId=1&
+shopStar=5&
+shopAsstStar=3&
+trxId=1
+reviewText="this place is nice"
+Response:
+[success:True]
+
+/get_recommendation_for_shop?
+cusId=bob&
+shopId=1
+Response:
+[shops: [2,3,5]]
+
+/get_recommendation_for_product?
+cusId=bob&
+productCatId=1
+Response:
+[shops: [2,3,5]]
+
+/init_trip_with_shop?
+cusId=bob&
+shopId=1
+Response:
+[transactionId: 1]
+
+
+/init_trip_with_shop_and_product?
+cusId=bob&
+shopId=1&
+productCatId=1
+Response:
+[transactionId: 1]
+
+
+/get_shop_asst?
+cusId=bob&
+trxId=1
+Response:
+[shopAsstName: "Tracy",
+shopAsstDesc:"Tracy sells shoes"]
+~~~~
