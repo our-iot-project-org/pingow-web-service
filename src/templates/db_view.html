@@ -1,0 +1,11 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<h1>{{ title }}</h1>
+<hr/>
+<div class="table-responsive">
+{% load django_tables2 %}
+{% render_table table %}
+</div>
+{% endblock content %}

@@ -4,6 +4,11 @@ from .core import console_print
 from .core import query_exec
 from .core import constants
 from .core import transaction_factory
+from .forms import CustomerCreationForm
+from .models import Customer
+from .models import CustomerTable
+from .intel import recommender_test as r
+
 from django.core import serializers
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
@@ -22,11 +27,11 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 #
-
 # /position?
 # cusId=bob&
 # targetPos=6&
@@ -200,3 +205,39 @@ def api_post(request):
         return response
     else:
         raise Http404()
+
+def customer_profile_create(request):
+    if not request.user.is_staff or not request.user.is_superuser:
+        raise PermissionDenied("Please login as Admin/Staff role to access this page.")
+
+    form = CustomerCreationForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.user = request.user
+        instance.save()
+        # message success
+        messages.success(request, "Successfully Created")
+        return HttpResponseRedirect(instance.get_absolute_url())
+    context = {
+        "form": form,
+        "title" : "Create Customer Profile"
+    }
+    return render(request, "form.html", context)
+
+
+def db_view_customer(request):
+    if not request.user.is_staff or not request.user.is_superuser:
+        raise PermissionDenied("Please login as Admin/Staff role to access this page.")
+
+    queryset = Customer.objects.all()
+    customer_table = CustomerTable(queryset)
+
+    context = {
+        "table" : customer_table,
+        "title" : "CUSTOMER TABLE"
+    }
+    return render(request, "db_view.html", context)
+
+def test (request):
+    r.recommendation_by_pdt_cat_test()
+    return "OK"

@@ -42,10 +42,12 @@ INSTALLED_APPS = [
     'markdown_deux',
     'pagedown',
     'rest_framework',
+    'django_tables2',
 
     # local apps
     'comments',
     'posts',
+    'pingow_api',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'

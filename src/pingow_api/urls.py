@@ -10,6 +10,9 @@ from .views import (
 	init_trip_with_shop_and_product,
 	get_shop_asst,
 	api_post,
+	customer_profile_create,
+	db_view_customer,
+	test,
 	)
 
 urlpatterns = [
@@ -21,6 +24,11 @@ urlpatterns = [
 	url(r'^init_trip_with_shop_and_product/$', init_trip_with_shop_and_product),
 	url(r'^get_shop_asst/$', get_shop_asst),
 	url(r'^api_post/$', api_post),
+	#webaccess for database table
+	url(r'^db_access/customer/$', db_view_customer),
+	url(r'^db_access/customer/create/$', customer_profile_create),
+
     #url(r'^posts/$', "<appname>.views.<function_name>"),
+	url(r'^test/$', test),
 
 ]
