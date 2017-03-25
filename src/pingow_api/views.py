@@ -55,15 +55,19 @@ def position_update(request):
         else:
             #check position between current position with shop
             rel = position_relationship.get_position_relationship(target, current)
-            if(is_asst_needed):
-                messenger.notify_assistance(rel, customer, current, target)
             isNearBy = (rel==constants.POSITION_REL_NEARBY)
             isTarget = (rel==constants.POSITION_REL_TARGET)
             #check if exit or not
             position_relationship.update_position_status(trxId, current, target)
             is_exit = (position_relationship.get_position_status(trxId) == constants.POSITION_STATUS_EXIT)
+            is_notify = is_asst_needed and (not is_exit) and (isNearBy | isTarget)
             if is_exit:
                 isNearBy = False
+            if is_notify:
+                #messenger.notify_assistance(rel, customer, current, target)
+                print('Message Sent')
+            else:
+                print('NO Messages')
             print('trxId=',trxId,'\t current=',current,'\t target=',target,'\t is_exit=',is_exit,'\t STATUS=',position_relationship.get_position_status(trxId))
             response = JsonResponse({'exit': is_exit, 'nearby': isNearBy })
         return response
