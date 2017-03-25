@@ -45,6 +45,7 @@ import pandas as pd
 # shop_asst_table = pd.read_csv('database_temp/SHOP_ASST_TABLE.csv', header = 0)
 # shop_asst_avail_table = pd.read_csv('database_temp/SHOP_ASST_AVAIL_TABLE.csv', header = 0)
 #
+#
 
 cust_trans_table = pd.DataFrame(list(m.CustomerTransaction.objects.all().values()))
 shop_table =  pd.DataFrame(list(m.Shop.objects.all().values()))
@@ -52,8 +53,15 @@ shop_ref_table =  pd.DataFrame(list(m.ShopSubCatReference.objects.all().values()
 sub_cat_table =  pd.DataFrame(list(m.SubCategory.objects.all().values()))
 shop_asst_table =  pd.DataFrame(list(m.Assistance.objects.all().values()))
 shop_asst_avail_table =  pd.DataFrame(list(m.AssistanceAvail.objects.all().values()))
-print(shop_ref_table)
-
+#print(shop_ref_table, "ShopSubCatReference pg_shop_subcat_ref")
+def load_data():
+    cust_trans_table = pd.DataFrame(list(m.CustomerTransaction.objects.all().values()))
+    shop_table =  pd.DataFrame(list(m.Shop.objects.all().values()))
+    shop_ref_table =  pd.DataFrame(list(m.ShopSubCatReference.objects.all().values()))
+    sub_cat_table =  pd.DataFrame(list(m.SubCategory.objects.all().values()))
+    shop_asst_table =  pd.DataFrame(list(m.Assistance.objects.all().values()))
+    shop_asst_avail_table =  pd.DataFrame(list(m.AssistanceAvail.objects.all().values()))
+    #print(shop_ref_table, "ShopSubCatReference pg_shop_subcat_ref")
 
 
 ##################### Note 4 Do not remove anything below here ##################
@@ -111,7 +119,10 @@ import pandas as pd
 #[1][2] Step 1 - return shop with product category & wheelchair friendly
 
 def shop_matched_pdt_cat(cust_selected_pdt_cat):
+    print ('************************************************')
     shop_selected_pdt_cat = shop_ref_table[shop_ref_table.SUB_CAT_ID == cust_selected_pdt_cat].drop('SUB_CAT_ID', axis = 1)
+    print('----------- shop_selected_pdt_cat --------------')
+    print(shop_selected_pdt_cat)
     shop_shortlisted = pd.merge(shop_table, shop_selected_pdt_cat, how = 'inner', on=['SHOP_ID', 'SHOP_ID'])
     shop_shortlisted2 = pd.DataFrame(shop_shortlisted[shop_shortlisted.W_FRIENDLY =="Y"])
     return shop_shortlisted2
@@ -126,12 +137,14 @@ def total_trans_by_cust_per_pdt_cat(cust_id, cust_selected_pdt_cat):
     shopper_trans_1 = pd.DataFrame(shopper_trans.groupby(shopper_trans.SHOP_ID).SHOP_ID.count())
     shopper_trans_1['Total_Count']= shopper_trans_1.SHOP_ID
     shopper_trans_1['SHOP_ID']= shopper_trans_1.index
-    shopper_trans_2 = pd.DataFrame(shopper_trans.groupby(shopper_trans.SHOP_ID).OVERALL_RATING.mean())
+    shopper_trans_2 = pd.DataFrame(shopper_trans.groupby(shopper_trans.SHOP_ID).OVERALL_RATE.sum())
+    #TO_DO chage to MEAN
+    #shopper_trans_2 = pd.DataFrame(shopper_trans.groupby(shopper_trans.SHOP_ID).OVERALL_RATE.mean())
     shopper_trans_2['SHOP_ID']= shopper_trans_2.index
     shopper_trans_3 = pd.merge(shopper_trans_1,shopper_trans_2, how ='inner', on = ['SHOP_ID', 'SHOP_ID'])
     #   Define transactions that are included for comparsion
     #   Check for total visit = 1, if yes; keep. if not = no.
-    shopper_trans_final = pd.DataFrame(shopper_trans_3[shopper_trans_3.OVERALL_RATING > 2])
+    shopper_trans_final = pd.DataFrame(shopper_trans_3[shopper_trans_3.OVERALL_RATE > 2])
     #print('the shape : ', shopper_trans_final.shape)
     return shopper_trans_final
 
@@ -144,7 +157,18 @@ def overall_rating_of_shops_by_pdt_type_selected (cust_selected_pdt_cat):
     shops = shop_matched_pdt_cat(cust_selected_pdt_cat)
     overall_rating_trans = pd.merge(shops,cust_trans_table, how = 'inner', on = ['SHOP_ID', 'SHOP_ID'])
     overall_rating_trans = overall_rating_trans[overall_rating_trans.SUB_CAT_ID == cust_selected_pdt_cat]
-    overall_rating_by_shops = pd.DataFrame(overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATING.mean())
+    # print(">>>overall_rating_trans>>>")
+    # print(overall_rating_trans)
+    # print(">>>overall_rating_trans.groupby(overall_rating_trans.SHOP_ID.OVERALL_RATE)>>>")
+    # print( overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATE)
+    # print('max')
+    # print( overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATE.max())
+    # print('sum')
+    # print( overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATE.sum())
+    # print('count')
+    # print( overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATE.count())
+    #change to mean() TO_DO
+    overall_rating_by_shops = pd.DataFrame(overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATE.sum())
     overall_rating_by_shops['SHOP_ID'] = overall_rating_by_shops.index
     overall_rating_by_shops = overall_rating_by_shops.sort_values(by = 'OVERALL_RATE', axis=0, ascending=False)
     return overall_rating_by_shops
@@ -154,7 +178,7 @@ def overall_rating_of_shops_by_pdt_type_selected (cust_selected_pdt_cat):
 
 #FUNCTION 04
 #[4] return recommendation
-def recommendation_by_pdt_cat():
+def recommendation_by_pdt_cat(cust_id, cust_selected_pdt_cat):
     y = overall_rating_of_shops_by_pdt_type_selected (cust_selected_pdt_cat)
     z = total_trans_by_cust_per_pdt_cat(cust_id, cust_selected_pdt_cat)
     if z.shape[0] == 0:
@@ -173,14 +197,15 @@ def recommendation_by_pdt_cat():
         recomm1 = z.iloc[0,0]
         recomm2 = z.iloc[1,0]
         if z.iloc[0,0] == y.iloc[0,1]:
-            if z.iloc[0.0] ==y.iloc[1,1]:
-                recomm3 = y.iloc[2,1]
-            else:
-                recomm3 = y.iloc[1,1]
-        elif z.iloc[1,0] ==y.iloc[0,1]:
-            recomm3 = y.iloc[1,1]
+            recomm3 = y.iloc[2,1]
+#            if z.iloc[0.0] ==y.iloc[1,1]:
+#                recomm3 = y.iloc[2,1]
         else:
-            recomm3 = y.iloc[0,1]
+            recomm3 = y.iloc[1,1]
+#        elif z.iloc[1,0] ==y.iloc[0,1]:
+#            recomm3 = y.iloc[1,1]
+#        else:
+#            recomm3 = y.iloc[0,1]
     else:
         recomm1 = z.iloc[0,0]
         recomm2 = z.iloc[1,0]
@@ -224,22 +249,35 @@ def shop_matched_shop_name(cust_selected_shop):
 #Function 6
 # [5]   return the shop names based on customer selection Part 2
 def similar_shop_by_shop_names():
+
     #Identify the current type of shop by selection
     x = shop_matched_shop_name(cust_selected_shop)
-    shop_type_by_pdt_cat = shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,0]].drop('SHOP_ID', axis = 1)
+    print('shop_matched_shop_name(cust_selected_shop)')
+    print(x)
+    print('shop_ref_table.SHOP_ID ')
+    print(shop_ref_table.SHOP_ID)
+    print('x.iloc[0,0]')
+    print(x.iloc[0,4])
+    print('shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,0]])', shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,4]])
+    shop_type_by_pdt_cat = shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,4]].drop('SHOP_ID', axis = 1)
+    print('shop_type_by_pdt_cat')
     shop_ID_same_pdt_cat = pd.merge (shop_ref_table, shop_type_by_pdt_cat, how = 'inner', on = ['SUB_CAT_ID', 'SUB_CAT_ID']).drop('SUB_CAT_ID', axis = 1).drop_duplicates('SHOP_ID')
+    print('shop_ID_same_pdt_cat')
     shop_name_same_pdt_cat = pd.merge(shop_ID_same_pdt_cat, shop_table, how = 'inner', on = ['SHOP_ID', 'SHOP_ID'])
+    print('shop_name_same_pdt_cat')
     #shop_name_same_pdt_cat
     return shop_name_same_pdt_cat
 
-#print(similar_shop_by_shop_names())
+#print('###############',similar_shop_by_shop_names())
 
 #Function 7
 # [6]   overall_scoring of shops by similar shop names
 def overall_rating_of_shops_by_shop_name_selected ():
     shops = similar_shop_by_shop_names()
     overall_rating_trans = pd.merge(shops,cust_trans_table, how = 'inner', on = ['SHOP_ID', 'SHOP_ID'])
-    overall_rating_by_shops = pd.DataFrame(overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATING.mean())
+    #Use SUM
+    #overall_rating_by_shops = pd.DataFrame(overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATE.mean())
+    overall_rating_by_shops = pd.DataFrame(overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATE.sum())
     overall_rating_by_shops['SHOP_ID'] = overall_rating_by_shops.index
     overall_rating_by_shops = overall_rating_by_shops.sort_values(by = 'OVERALL_RATE', axis=0, ascending=False)
     return overall_rating_by_shops
@@ -248,8 +286,13 @@ def overall_rating_of_shops_by_shop_name_selected ():
 
 #Function 8
 # [7]   match recommendations to users
-def recommendation_by_shop_names(cust_selected_shop):
+def recommendation_by_shop_names(cust_selected_shop_xx):
+    print('>>>',cust_selected_shop_xx)
+    print('2>>>',cust_selected_shop)
+
     x = overall_rating_of_shops_by_shop_name_selected()
+    print('3>>>',x)
+    return 0
     shops_selected = x[x.SHOP_ID != cust_selected_shop]
 
     recomm1 = cust_selected_shop

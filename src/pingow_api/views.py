@@ -7,7 +7,8 @@ from .core import transaction_factory
 from .forms import CustomerCreationForm
 from .models import Customer
 from .models import CustomerTable
-from .intel import recommender_test as r
+from .intel import recommender as r
+from .intel import recommender_test as rt
 
 from django.core import serializers
 from rest_framework.response import Response
@@ -61,6 +62,8 @@ def position_update(request):
             #check if exit or not
             position_relationship.update_position_status(trxId, current, target)
             is_exit = (position_relationship.get_position_status(trxId) == constants.POSITION_STATUS_EXIT)
+            if is_exit:
+                isNearBy = False
             print('trxId=',trxId,'\t current=',current,'\t target=',target,'\t is_exit=',is_exit,'\t STATUS=',position_relationship.get_position_status(trxId))
             response = JsonResponse({'exit': is_exit, 'nearby': isNearBy })
         return response
@@ -103,7 +106,9 @@ def get_recommendation_for_shop(request):
             response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             #Commit review to DB
-            response = JsonResponse({'shops': [2,3,5]})
+            rec_shops = r.recommendation_by_shop_names(int(shopId))
+            #response = JsonResponse({'shops': rec_shops})
+            response = JsonResponse({'shops': 'rec_shops'})
         return response
     else:
         raise Http404()
@@ -121,7 +126,9 @@ def get_recommendation_for_product(request):
             response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             #Commit review to DB
-            response = JsonResponse({'shops': [2,3,4]})
+            #response = JsonResponse({'shops': [2,3,4]})
+            rec_shops = r.recommendation_by_pdt_cat(int(cusId),int(productCatId))
+            response = JsonResponse({'shops': rec_shops})
         return response
     else:
         raise Http404()
@@ -239,5 +246,10 @@ def db_view_customer(request):
     return render(request, "db_view.html", context)
 
 def test (request):
-    r.recommendation_by_pdt_cat_test()
-    return "OK"
+    module_name = request.GET.get('module', None)
+    if (module_name is None):
+        return JsonResponse({'Result':'NULL module parameter. Add ?module=some_name to URL to test'})
+    else:
+        result = rt.test(module_name)
+        response = JsonResponse({'Result':result})
+    return response

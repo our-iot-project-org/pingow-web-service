@@ -11,10 +11,10 @@ class Customer(models.Model):
     DATE_OF_BIRTH = models.DateField()
     AGE_GROUP = models.IntegerField(choices = c.AGE_GROUP_CHOICES)
     GENDER = models.CharField(max_length = 10, choices = c.GENDER_CHOICES)
-    PREF_LANG_1 = models.CharField(max_length = 25)
-    PREF_LANG_2 = models.CharField(max_length = 25)
+    PREF_LANG_1 = models.CharField(max_length = 25, null=True)
+    PREF_LANG_2 = models.CharField(max_length = 25, null=True)
     USER_TYPE = models.CharField(max_length = 25)
-    DATE_REG = models.DateField()
+    DATE_REG = models.DateField(null=True)
     def get_absolute_url(self):
         return '#'
     class Meta:
@@ -33,7 +33,7 @@ class Shop(models.Model):
     SHOP_ID =  models.AutoField(primary_key=True)
     SHOP_NAME = models.CharField(max_length =250)
     DATE_REG = models.DateField()
-    DATE_DEREG = models.DateField()
+    DATE_DEREG = models.DateField(null=True)
     W_FRIENDLY = models.CharField(max_length = 1,choices =YN_CHOICES, default = 'N')
     ASSIST_AVAIL = models.CharField(max_length = 1,choices =YN_CHOICES, default = 'N')
     AVG_RATING = models.IntegerField()
@@ -44,7 +44,7 @@ class Shop(models.Model):
 
 class Beacon(models.Model):
     BEACON_ID =  models.AutoField(primary_key=True)
-    SHOP_ID = models.ForeignKey(Shop, on_delete=models.CASCADE, db_column = 'SHOP_ID')
+    SHOP_ID = models.IntegerField()
     class Meta:
         db_table = 'pg_beacon'
 
@@ -55,7 +55,7 @@ class BeaconRelationship(models.Model):
         (c.POSITION_REL_NO,c.POSITION_REL_NO)
     )
     RELATIONSHIP_ID =  models.AutoField(primary_key=True)
-    BEACON_ID =  models.ForeignKey(Beacon, on_delete=models.CASCADE, db_column = 'BEACON_ID')
+    BEACON_ID =  models.IntegerField()
     BEACON_ID_SEC = models.IntegerField()
     RELATIONSHIP_TYPE = models.CharField(max_length = 25, choices=RELATHIPSHIP_TYPE_CHOICES, default=c.POSITION_REL_NO)
     class Meta:
@@ -63,16 +63,16 @@ class BeaconRelationship(models.Model):
 
 class Assistance(models.Model):
     ASST_ID =  models.AutoField(primary_key=True)
-    SHOP_ID = models.ForeignKey(Shop, on_delete=models.CASCADE, db_column = 'SHOP_ID')
+    SHOP_ID = models.IntegerField()
     ASST_NAME = models.CharField(max_length = 250)
     DATE_OF_BIRTH = models.DateField()
     AGE_GROUP = models.IntegerField(choices = c.AGE_GROUP_CHOICES)
     GENDER = models.CharField(max_length = 10, choices = c.GENDER_CHOICES)
-    PREF_LANG_1 = models.CharField(max_length = 25)
-    PREF_LANG_2 = models.CharField(max_length = 25)
-    TRAINED_SKILL = models.CharField(max_length = 25)
-    TRAINED_LEVEL = models.CharField(max_length = 25)
-    PRODUCT_SKILL = models.CharField(max_length = 250)
+    PREF_LANG_1 = models.CharField(max_length = 25,null=True)
+    PREF_LANG_2 = models.CharField(max_length = 25,null=True)
+    TRAINED_SKILL = models.CharField(max_length = 25,null=True)
+    TRAINED_LEVEL = models.CharField(max_length = 25,null=True)
+    PRODUCT_SKILL = models.CharField(max_length = 250,null=True)
     class Meta:
         db_table = 'pg_assistance'
 
@@ -83,22 +83,22 @@ class Crowd(models.Model):
         (3, 'Red'),
     )
     CROWD_ID =  models.AutoField(primary_key=True)
-    SHOP_ID = models.ForeignKey(Shop, on_delete=models.CASCADE, db_column = 'SHOP_ID')
+    SHOP_ID = models.IntegerField()
     CROWD_LEVEL = models.IntegerField(choices=CROWD_LEVEL_CHOICES, default=1)
     class Meta:
         db_table = 'pg_crowd'
 
 class AssistanceAvail(models.Model):
-    ASST_ID = models.ForeignKey(Assistance, on_delete=models.CASCADE, db_column = 'ASST_ID')
-    TIME_IN  = models.DateField()
-    TIME_OUT = models.DateField()
+    ASST_ID = models.IntegerField()
+    TIME_IN  = models.DateField(null=True)
+    TIME_OUT = models.DateField(null=True)
     AVAILABILITY = models.BooleanField()
     class Meta:
         db_table = 'pg_assistance_avail'
 
 class ShopSubCatReference(models.Model):
     REF_ID =  models.AutoField(primary_key=True)
-    SHOP_ID = models.ForeignKey(Shop, on_delete=models.CASCADE, db_column = 'SHOP_ID')
+    SHOP_ID = models.IntegerField()
     SUB_CAT_ID = models.IntegerField()
     class Meta:
         db_table = 'pg_shop_subcat_ref'
@@ -111,7 +111,8 @@ class SubCategory(models.Model):
 
 
 class CustomerTransaction(models.Model):
-    TRANSACTION_ID = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
+    TRANSACTION_ID = models.IntegerField()
     CUSTOMER_ID = models.IntegerField()
     SUB_CAT_ID = models.IntegerField()
     SHOP_ID = models.IntegerField()
@@ -120,7 +121,7 @@ class CustomerTransaction(models.Model):
     TIME_OF_ENTER  = models.DateField(null=True)
     TIME_OF_EXIT  = models.DateField(null=True)
     ASST_SVC_RATE = models.IntegerField()
-    OVERALL_RATE = models.IntegerField()
-    COMMENTS = models.TextField(blank=True)
+    OVERALL_RATE = models.DecimalField(max_digits=10,decimal_places=2)
+    COMMENTS = models.TextField(blank=True, null=True)
     class Meta:
         db_table = 'pg_customer_trans'
