@@ -28,7 +28,7 @@ urlpatterns = [
 	url(r'^db_access/customer/$', db_view_customer),
 	url(r'^db_access/customer/create/$', customer_profile_create),
 
-    #url(r'^posts/$', "<appname>.views.<function_name>"),
+    # url(r'^posts/$', "<appname>.views.<function_name>"),
 	url(r'^test/$', test),
 
 ]

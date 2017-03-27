@@ -2,6 +2,9 @@
 VALUE_NULL = 'null value'
 VALUE_UNDEFINED = 'undefined'
 
+#Common settings
+DATE_FMT = '%Y-%m-%d'
+
 #Position to shop status
 POSITION_STATUS_OUTSIDE = 'outside shop'
 POSITION_STATUS_ENTER = 'enter shop'

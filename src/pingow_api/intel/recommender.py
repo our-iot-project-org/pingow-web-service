@@ -21,10 +21,10 @@ from pingow_api  import models as m
 #input from mobile interface (temp : need to replace with actual)
 #note: either cust_selected_pdt_cat or #cust_selected_shop will be selected.
 
-cust_id = 2 #avoid using cust_id = 8 (logic got issue). advise to use 1, 2, 3, 4
-cust_selected_pdt_cat = 3 #or use 9, 1, 2, 3
-cust_selected_shop = 17 #use electronics shop -  1,2,3,12,13,15,16 or watch - 10, 17, 18 , 19, 20
-cust_destination = 17 #use electronics shop -  1,2,3,12,13,15,16 or watch - 10, 18 , 17,19, 20
+#cust_id = 2 #avoid using cust_id = 8 (logic got issue). advise to use 1, 2, 3, 4
+#cust_selected_pdt_cat = 3 #or use 9, 1, 2, 3
+#cust_selected_shop = 17 #use electronics shop -  1,2,3,12,13,15,16 or watch - 10, 17, 18 , 19, 20
+#cust_destination = 17 #use electronics shop -  1,2,3,12,13,15,16 or watch - 10, 18 , 17,19, 20
 
 ######################## NOTE 3 ################################################
 
@@ -47,14 +47,9 @@ import pandas as pd
 #
 #
 
-cust_trans_table = pd.DataFrame(list(m.CustomerTransaction.objects.all().values()))
-shop_table =  pd.DataFrame(list(m.Shop.objects.all().values()))
-shop_ref_table =  pd.DataFrame(list(m.ShopSubCatReference.objects.all().values()))
-sub_cat_table =  pd.DataFrame(list(m.SubCategory.objects.all().values()))
-shop_asst_table =  pd.DataFrame(list(m.Assistance.objects.all().values()))
-shop_asst_avail_table =  pd.DataFrame(list(m.AssistanceAvail.objects.all().values()))
-#print(shop_ref_table, "ShopSubCatReference pg_shop_subcat_ref")
+global cust_trans_table , shop_table , shop_ref_table , sub_cat_table , shop_asst_table , shop_asst_avail_table
 def load_data():
+    global cust_trans_table , shop_table , shop_ref_table , sub_cat_table , shop_asst_table , shop_asst_avail_table
     cust_trans_table = pd.DataFrame(list(m.CustomerTransaction.objects.all().values()))
     shop_table =  pd.DataFrame(list(m.Shop.objects.all().values()))
     shop_ref_table =  pd.DataFrame(list(m.ShopSubCatReference.objects.all().values()))
@@ -119,10 +114,10 @@ import pandas as pd
 #[1][2] Step 1 - return shop with product category & wheelchair friendly
 
 def shop_matched_pdt_cat(cust_selected_pdt_cat):
-    print ('************************************************')
+    # print ('************************************************')
     shop_selected_pdt_cat = shop_ref_table[shop_ref_table.SUB_CAT_ID == cust_selected_pdt_cat].drop('SUB_CAT_ID', axis = 1)
-    print('----------- shop_selected_pdt_cat --------------')
-    print(shop_selected_pdt_cat)
+    # print('----------- shop_selected_pdt_cat --------------')
+    # print(shop_selected_pdt_cat)
     shop_shortlisted = pd.merge(shop_table, shop_selected_pdt_cat, how = 'inner', on=['SHOP_ID', 'SHOP_ID'])
     shop_shortlisted2 = pd.DataFrame(shop_shortlisted[shop_shortlisted.W_FRIENDLY =="Y"])
     return shop_shortlisted2
@@ -179,6 +174,7 @@ def overall_rating_of_shops_by_pdt_type_selected (cust_selected_pdt_cat):
 #FUNCTION 04
 #[4] return recommendation
 def recommendation_by_pdt_cat(cust_id, cust_selected_pdt_cat):
+    load_data()
     y = overall_rating_of_shops_by_pdt_type_selected (cust_selected_pdt_cat)
     z = total_trans_by_cust_per_pdt_cat(cust_id, cust_selected_pdt_cat)
     if z.shape[0] == 0:
@@ -211,7 +207,7 @@ def recommendation_by_pdt_cat(cust_id, cust_selected_pdt_cat):
         recomm2 = z.iloc[1,0]
         recomm3 = z.iloc[2,0]
 
-    return ["%.0f" %recomm1,"%.0f" %recomm2,"%.0f" %recomm3]
+    return [int(recomm1),int(recomm2),int(recomm3)]
 
 print('logic 1 below - to remove at line 176 - 177')
 #print(recommendation_by_pdt_cat())
@@ -248,23 +244,23 @@ def shop_matched_shop_name(cust_selected_shop):
 
 #Function 6
 # [5]   return the shop names based on customer selection Part 2
-def similar_shop_by_shop_names():
+def similar_shop_by_shop_names(cust_selected_shop):
 
     #Identify the current type of shop by selection
     x = shop_matched_shop_name(cust_selected_shop)
-    print('shop_matched_shop_name(cust_selected_shop)')
-    print(x)
-    print('shop_ref_table.SHOP_ID ')
-    print(shop_ref_table.SHOP_ID)
-    print('x.iloc[0,0]')
-    print(x.iloc[0,4])
-    print('shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,0]])', shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,4]])
+    # print('shop_matched_shop_name(cust_selected_shop)')
+    # print(x)
+    # print('shop_ref_table.SHOP_ID ')
+    # print(shop_ref_table.SHOP_ID)
+    # print('x.iloc[0,0]')
+    # print(x.iloc[0,4])
+    # print('shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,0]])', shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,4]])
     shop_type_by_pdt_cat = shop_ref_table[shop_ref_table.SHOP_ID == x.iloc[0,4]].drop('SHOP_ID', axis = 1)
-    print('shop_type_by_pdt_cat')
+    # print('shop_type_by_pdt_cat')
     shop_ID_same_pdt_cat = pd.merge (shop_ref_table, shop_type_by_pdt_cat, how = 'inner', on = ['SUB_CAT_ID', 'SUB_CAT_ID']).drop('SUB_CAT_ID', axis = 1).drop_duplicates('SHOP_ID')
-    print('shop_ID_same_pdt_cat')
+    # print('shop_ID_same_pdt_cat')
     shop_name_same_pdt_cat = pd.merge(shop_ID_same_pdt_cat, shop_table, how = 'inner', on = ['SHOP_ID', 'SHOP_ID'])
-    print('shop_name_same_pdt_cat')
+    # print('shop_name_same_pdt_cat')
     #shop_name_same_pdt_cat
     return shop_name_same_pdt_cat
 
@@ -272,8 +268,8 @@ def similar_shop_by_shop_names():
 
 #Function 7
 # [6]   overall_scoring of shops by similar shop names
-def overall_rating_of_shops_by_shop_name_selected ():
-    shops = similar_shop_by_shop_names()
+def overall_rating_of_shops_by_shop_name_selected (cust_selected_shop):
+    shops = similar_shop_by_shop_names(cust_selected_shop)
     overall_rating_trans = pd.merge(shops,cust_trans_table, how = 'inner', on = ['SHOP_ID', 'SHOP_ID'])
     #Use SUM
     #overall_rating_by_shops = pd.DataFrame(overall_rating_trans.groupby(overall_rating_trans.SHOP_ID).OVERALL_RATE.mean())
@@ -286,20 +282,16 @@ def overall_rating_of_shops_by_shop_name_selected ():
 
 #Function 8
 # [7]   match recommendations to users
-def recommendation_by_shop_names(cust_selected_shop_xx):
-    print('>>>',cust_selected_shop_xx)
-    print('2>>>',cust_selected_shop)
-
-    x = overall_rating_of_shops_by_shop_name_selected()
-    print('3>>>',x)
-    return 0
+def recommendation_by_shop_names(cust_selected_shop):
+    load_data()
+    x = overall_rating_of_shops_by_shop_name_selected(cust_selected_shop)
     shops_selected = x[x.SHOP_ID != cust_selected_shop]
 
     recomm1 = cust_selected_shop
     recomm2 = shops_selected.iloc[0,1]
     recomm3 = shops_selected.iloc[1,1]
-
-    return ["%.0f" %recomm1,"%.0f" %recomm2,"%.0f" %recomm3]
+    print('recommendation_by_shop_names', [int(recomm1),int(recomm2),int(recomm3)])
+    return [int(recomm1),int(recomm2),int(recomm3)]
 
 # print('logic 2 below - to remove at line 246 - 247')
 #print (recommendation_by_shop_names(cust_selected_shop))
@@ -355,6 +347,7 @@ def SA_availability_by_des_shop(cust_destination):
 #Function 11
 #[4] from those that are available, pick the one top rated
 def recommend_shop_asst ():
+    load_data()
     x = SA_availability_by_des_shop(cust_destination)
     y = avg_rating_SA_by_des_shop (cust_destination)
 

@@ -47,10 +47,10 @@ def position_update(request):
     if request.method == 'GET':
         target = request.GET.get('targetPos', None)
         current = request.GET.get('currentPos', None)
-        customer = request.GET.get('cusId', None)
+        cusId = get_cusId( request.GET.get('cusId', None))
         trxId = request.GET.get('trxId', None)
         is_asst_needed = request.GET.get('asst', None)
-        if (target is None) | (current is None) | (customer is None) | (trxId is None) | (is_asst_needed is None):
+        if (target is None) | (current is None) | (cusId is None) | (trxId is None) | (is_asst_needed is None):
             response = JsonResponse({'status': constants.VALUE_NULL})
         else:
             #check position between current position with shop
@@ -64,8 +64,8 @@ def position_update(request):
             if is_exit:
                 isNearBy = False
             if is_notify:
-                #messenger.notify_assistance(rel, customer, current, target)
-                print('Message Sent')
+                messenger.notify_assistance(rel, cusId, current, target)
+                # print('Message Sent')
             else:
                 print('NO Messages')
             print('trxId=',trxId,'\t current=',current,'\t target=',target,'\t is_exit=',is_exit,'\t STATUS=',position_relationship.get_position_status(trxId))
@@ -82,7 +82,7 @@ def position_update(request):
 # Response: # [success:True]
 def send_review(request):
     if request.method == 'GET':
-        cusId = request.GET.get('cusId', None)
+        cusId = get_cusId( request.GET.get('cusId', None))
         shopId = request.GET.get('shopId', None)
         shopStar = request.GET.get('shopStar', None)
         shopAsstStar = request.GET.get('shopAsstStar', None)
@@ -92,7 +92,8 @@ def send_review(request):
             response = JsonResponse({'success': False})
         else:
             #Commit review to DB
-            response = JsonResponse({'success': True})
+            status = transaction_factory.update_trans(trxId, cusId, shopId, shopStar, shopAsstStar, reviewText)
+            response = JsonResponse({'success': status})
         return response
     else:
         raise Http404()
@@ -104,15 +105,15 @@ def send_review(request):
 # [shops: [2,3,5]]
 def get_recommendation_for_shop(request):
     if request.method == 'GET':
-        cusId = request.GET.get('cusId', None)
+        cusId = get_cusId( request.GET.get('cusId', None))
         shopId = request.GET.get('shopId', None)
         if (cusId is None) | (shopId is None):
             response = JsonResponse({'status': constants.VALUE_NULL})
         else:
-            #Commit review to DB
             rec_shops = r.recommendation_by_shop_names(int(shopId))
-            #response = JsonResponse({'shops': rec_shops})
-            response = JsonResponse({'shops': 'rec_shops'})
+            rec_shopx = list(rec_shops)
+            response = JsonResponse({'shops': rec_shops})
+            print(rec_shops)
         return response
     else:
         raise Http404()
@@ -124,13 +125,11 @@ def get_recommendation_for_shop(request):
 # [shops: [2,3,5]]
 def get_recommendation_for_product(request):
     if request.method == 'GET':
-        cusId = request.GET.get('cusId', None)
+        cusId = get_cusId( request.GET.get('cusId', None))
         productCatId = request.GET.get('productCatId', None)
         if (cusId is None) | (productCatId is None):
             response = JsonResponse({'status': constants.VALUE_NULL})
         else:
-            #Commit review to DB
-            #response = JsonResponse({'shops': [2,3,4]})
             rec_shops = r.recommendation_by_pdt_cat(int(cusId),int(productCatId))
             response = JsonResponse({'shops': rec_shops})
         return response
@@ -144,13 +143,12 @@ def get_recommendation_for_product(request):
 # [transactionId: 1]
 def init_trip_with_shop(request):
     if request.method == 'GET':
-        cusId = request.GET.get('cusId', None)
+        cusId = get_cusId( request.GET.get('cusId', None))
         shopId = request.GET.get('shopId', None)
         if (cusId is None) | (shopId is None):
             response = JsonResponse({'status': constants.VALUE_NULL})
         else:
-            #Commit review to DB
-            trans_id = transaction_factory.create_trans_id()
+            trans_id = transaction_factory.create_trans_id(cusId, shopId, None)
             response = JsonResponse({'transactionId': trans_id})
         return response
     else:
@@ -164,14 +162,13 @@ def init_trip_with_shop(request):
 # [transactionId: 1]
 def init_trip_with_shop_and_product(request):
     if request.method == 'GET':
-        cusId = request.GET.get('cusId', None)
+        cusId = get_cusId( request.GET.get('cusId', None))
         shopId = request.GET.get('shopId', None)
         productCatId = request.GET.get('productCatId', None)
         if (cusId is None) | (shopId is None) | (productCatId is None) :
             response = JsonResponse({'status': constants.VALUE_NULL})
         else:
-            #Commit review to DB
-            trans_id = transaction_factory.create_trans_id()
+            trans_id = transaction_factory.create_trans_id(cusId, shopId, productCatId)
             response = JsonResponse({'transactionId': trans_id})
         return response
     else:
@@ -189,7 +186,7 @@ def init_trip_with_shop_and_product(request):
 # shopAsstId:1
 def get_shop_asst(request):
     if request.method == 'GET':
-        cusId = request.GET.get('cusId', None)
+        cusId = get_cusId( request.GET.get('cusId', None))
         trxId = request.GET.get('trxId', None)
         if (cusId is None) | (trxId is None):
             response = JsonResponse({'status': constants.VALUE_NULL})
@@ -257,3 +254,10 @@ def test (request):
         result = rt.test(module_name)
         response = JsonResponse({'Result':result})
     return response
+def get_cusId(cusId):
+    if cusId=='bob':
+        return 2
+    elif cusId=='alice':
+        return 1
+    else:
+        return 3
