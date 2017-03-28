@@ -71,7 +71,7 @@ def position_update(request):
                 trans_obj.TIME_OF_ENTER = datetime.datetime.now().strftime(c.DATE_TIME_FMT)
                 trans_obj.save(update_fields = ['TIME_OF_ENTER'])
             if is_notify:
-                # messenger.notify_assistance(rel, cusId, current, target)
+                messenger.notify_assistance(rel, cusId, current, target)
                 print('Message Sent')
             else:
                 print('NO Messages')
@@ -198,6 +198,7 @@ def get_shop_asst(request):
             trans_obj = CustomerTransaction.objects.get(TRANSACTION_ID = trxId)
             shop_id = trans_obj.SHOP_ID
             asst_id = r.recommend_shop_asst(shop_id)
+            # asst_id = 15 // Chris
             asst_obj = Assistance.objects.get(ASST_ID = asst_id)
             asst_name = asst_obj.ASST_NAME
             asst_desc = "Gender:" +  asst_obj.GENDER + ", Main Language:" + asst_obj.PREF_LANG_1
@@ -276,11 +277,6 @@ def test (request):
         result = rt.test(module_name)
         response = JsonResponse({'Result':result})
     return response
-    
+
 def get_cusId(cusId):
-    if cusId=='bob':
-        return 2
-    elif cusId=='alice':
-        return 1
-    else:
-        return 3
+    return cusId
