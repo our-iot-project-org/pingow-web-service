@@ -5,8 +5,8 @@ from .core import query_exec
 from .core import constants
 from .core import transaction_factory
 from .forms import CustomerCreationForm
-from .models import Customer
-from .models import CustomerTable
+from .models import Customer, CustomerTransaction
+from .models import CustomerTable, CustomerTransactionTable
 from .intel import recommender as r
 from .intel import recommender_test as rt
 
@@ -238,11 +238,24 @@ def db_view_customer(request):
         raise PermissionDenied("Please login as Admin/Staff role to access this page.")
 
     queryset = Customer.objects.all()
-    customer_table = CustomerTable(queryset)
+    data_table = CustomerTable(queryset)
 
     context = {
-        "table" : customer_table,
+        "table" : data_table,
         "title" : "CUSTOMER TABLE"
+    }
+    return render(request, "db_view.html", context)
+
+def db_view_customer_trans(request):
+    if not request.user.is_staff or not request.user.is_superuser:
+        raise PermissionDenied("Please login as Admin/Staff role to access this page.")
+
+    queryset = CustomerTransaction.objects.all()
+    data_table = CustomerTransactionTable(queryset)
+
+    context = {
+        "table" : data_table,
+        "title" : "CUSTOMER TRANSACTION TABLE"
     }
     return render(request, "db_view.html", context)
 

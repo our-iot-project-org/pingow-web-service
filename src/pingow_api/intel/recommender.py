@@ -209,7 +209,7 @@ def recommendation_by_pdt_cat(cust_id, cust_selected_pdt_cat):
 
     return [int(recomm1),int(recomm2),int(recomm3)]
 
-print('logic 1 below - to remove at line 176 - 177')
+# print('logic 1 below - to remove at line 176 - 177')
 #print(recommendation_by_pdt_cat())
 
 #################################################################

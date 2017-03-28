@@ -20,10 +20,6 @@ class Customer(models.Model):
     class Meta:
         db_table = 'pg_customer'
 
-class CustomerTable(tables.Table):
-    class Meta:
-        model = Customer
-        attrs = {'class': 'table table-hover'}
 
 class Shop(models.Model):
     YN_CHOICES = (
@@ -117,10 +113,20 @@ class CustomerTransaction(models.Model):
     SHOP_ID = models.IntegerField(null=True)
     ASST_ID = models.IntegerField(null=True)
     CREATION_DATE  = models.DateField(null=True)
-    TIME_OF_ENTER  = models.DateField(null=True)
-    TIME_OF_EXIT  = models.DateField(null=True)
+    TIME_OF_ENTER  = models.DateTimeField(null=True)
+    TIME_OF_EXIT  = models.DateTimeField(null=True)
     ASST_SVC_RATE = models.IntegerField(null=True)
     OVERALL_RATE = models.DecimalField(max_digits=10,decimal_places=2, null=True)
     COMMENTS = models.TextField(blank=True, null=True)
     class Meta:
         db_table = 'pg_customer_trans'
+
+class CustomerTable(tables.Table):
+    class Meta:
+        model = Customer
+        attrs = {'class': 'table table-hover'}
+
+class CustomerTransactionTable(tables.Table):
+    class Meta:
+        model = CustomerTransaction
+        attrs = {'class': 'table table-hover'}
