@@ -69,6 +69,7 @@ class Assistance(models.Model):
     TRAINED_SKILL = models.CharField(max_length = 25,null=True)
     TRAINED_LEVEL = models.CharField(max_length = 25,null=True)
     PRODUCT_SKILL = models.CharField(max_length = 250,null=True)
+    PHOTO_URL = models.CharField(max_length = 500,null=True)
     class Meta:
         db_table = 'pg_assistance'
 

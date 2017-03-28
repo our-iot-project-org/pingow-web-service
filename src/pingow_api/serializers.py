@@ -64,6 +64,7 @@ class AssistanceSerializer(ModelSerializer):
             'TRAINED_SKILL',
             'TRAINED_LEVEL',
             'PRODUCT_SKILL',
+            'PHOTO_URL',
         ]
 
 class CrowdSerializer(ModelSerializer):

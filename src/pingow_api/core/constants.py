@@ -4,6 +4,7 @@ VALUE_UNDEFINED = 'undefined'
 
 #Common settings
 DATE_FMT = '%Y-%m-%d'
+DATE_TIME_FMT = '%Y-%m-%d %H:%M:%S'
 
 #Position to shop status
 POSITION_STATUS_OUTSIDE = 'outside shop'
@@ -31,3 +32,6 @@ AGE_GROUP_CHOICES = (
     (8, '71-80'),
     (9, '81-90'),
 )
+
+#Media
+NO_PHOTO_URL = 'http://www.pingow.tk/wp-content/uploads/2017/03/nophoto.jpg'

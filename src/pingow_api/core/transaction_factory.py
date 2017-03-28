@@ -28,5 +28,7 @@ def update_trans (trxId, cusId, shopId, shopStar, shopAsstStar, reviewText):
     new_trans.OVERALL_RATE = shopStar
     new_trans.ASST_SVC_RATE = shopAsstStar
     new_trans.COMMENTS =  reviewText
-    new_trans.save()
+    new_trans.save(
+        update_fields = ['CUSTOMER_ID' , 'SHOP_ID',  'OVERALL_RATE', 'ASST_SVC_RATE', 'COMMENTS']
+    )
     return True

@@ -5,8 +5,6 @@ from pingow_api import models as m
 
 def send(reciver_id, content_string):
     msg = content_string
-    console_print.debug_print(msg)
-    print('send>>>', msg)
     slack.send_msg(msg)
 
 #Sending message to assistance
@@ -15,9 +13,8 @@ def notify_assistance(location_relationship, customerId, current, target):
     customer_name = customer_obj.CUSTOMER_NAME
     gender = customer_obj.GENDER
     language = customer_obj.PREF_LANG_1
-
     textContent = "Shop:" + target + " Current Position:" + current + " | Position: " + location_relationship + "\n"
-    print('notify_assistance>>',textContent)
+    # print('notify_assistance>>',textContent)
     if location_relationship == c.POSITION_REL_NEARBY:
         textContent = "======= Alert #01 Reaching Soon =======\n"
         textContent += "Customer Name: " + customer_name + "\n"

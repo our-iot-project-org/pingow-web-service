@@ -2,13 +2,14 @@ from .core import position_relationship
 from .core import messenger
 from .core import console_print
 from .core import query_exec
-from .core import constants
+from .core import constants as c
 from .core import transaction_factory
 from .forms import CustomerCreationForm
-from .models import Customer, CustomerTransaction
+from .models import Customer, CustomerTransaction, Assistance
 from .models import CustomerTable, CustomerTransactionTable
 from .intel import recommender as r
 from .intel import recommender_test as rt
+import datetime
 
 from django.core import serializers
 from rest_framework.response import Response
@@ -51,28 +52,31 @@ def position_update(request):
         trxId = request.GET.get('trxId', None)
         is_asst_needed = request.GET.get('asst', None)
         if (target is None) | (current is None) | (cusId is None) | (trxId is None) | (is_asst_needed is None):
-            response = JsonResponse({'status': constants.VALUE_NULL})
+            response = JsonResponse({'status': c.VALUE_NULL})
         else:
             #check position between current position with shop
             rel = position_relationship.get_position_relationship(target, current)
-            isNearBy = (rel==constants.POSITION_REL_NEARBY)
-            isTarget = (rel==constants.POSITION_REL_TARGET)
+            is_nearby = (rel==c.POSITION_REL_NEARBY)
+            is_target = (rel==c.POSITION_REL_TARGET)
             #check if exit or not
             position_relationship.update_position_status(trxId, current, target)
-            is_exit = (position_relationship.get_position_status(trxId) == constants.POSITION_STATUS_EXIT)
-            is_notify = is_asst_needed and (not is_exit) and (isNearBy | isTarget)
+            is_exit = (position_relationship.get_position_status(trxId) == c.POSITION_STATUS_EXIT)
+            is_notify = is_asst_needed and (not is_exit) and (is_nearby | is_target)
+            trans_obj = CustomerTransaction.objects.get(TRANSACTION_ID = trxId)
             if is_exit:
-                isNearBy = False
+                is_nearby = False
+                trans_obj.TIME_OF_EXIT = datetime.datetime.now().strftime(c.DATE_TIME_FMT)
+                trans_obj.save(update_fields = ['TIME_OF_EXIT'])
+            if is_target:
+                trans_obj.TIME_OF_ENTER = datetime.datetime.now().strftime(c.DATE_TIME_FMT)
+                trans_obj.save(update_fields = ['TIME_OF_ENTER'])
             if is_notify:
-                messenger.notify_assistance(rel, cusId, current, target)
-                # print('Message Sent')
+                # messenger.notify_assistance(rel, cusId, current, target)
+                print('Message Sent')
             else:
                 print('NO Messages')
             print('trxId=',trxId,'\t current=',current,'\t target=',target,'\t is_exit=',is_exit,'\t STATUS=',position_relationship.get_position_status(trxId))
-            response = JsonResponse({'exit': is_exit, 'nearby': isNearBy })
-        return response
-    elif request.method == 'POST':
-        response = JsonResponse({'requesting': 'POST REQUEST' })
+            response = JsonResponse({'exit': is_exit, 'nearby': is_nearby })
         return response
     else:
         raise Http404()
@@ -108,7 +112,7 @@ def get_recommendation_for_shop(request):
         cusId = get_cusId( request.GET.get('cusId', None))
         shopId = request.GET.get('shopId', None)
         if (cusId is None) | (shopId is None):
-            response = JsonResponse({'status': constants.VALUE_NULL})
+            response = JsonResponse({'status': c.VALUE_NULL})
         else:
             rec_shops = r.recommendation_by_shop_names(int(shopId))
             rec_shopx = list(rec_shops)
@@ -128,7 +132,7 @@ def get_recommendation_for_product(request):
         cusId = get_cusId( request.GET.get('cusId', None))
         productCatId = request.GET.get('productCatId', None)
         if (cusId is None) | (productCatId is None):
-            response = JsonResponse({'status': constants.VALUE_NULL})
+            response = JsonResponse({'status': c.VALUE_NULL})
         else:
             rec_shops = r.recommendation_by_pdt_cat(int(cusId),int(productCatId))
             response = JsonResponse({'shops': rec_shops})
@@ -146,7 +150,7 @@ def init_trip_with_shop(request):
         cusId = get_cusId( request.GET.get('cusId', None))
         shopId = request.GET.get('shopId', None)
         if (cusId is None) | (shopId is None):
-            response = JsonResponse({'status': constants.VALUE_NULL})
+            response = JsonResponse({'status': c.VALUE_NULL})
         else:
             trans_id = transaction_factory.create_trans_id(cusId, shopId, None)
             response = JsonResponse({'transactionId': trans_id})
@@ -166,7 +170,7 @@ def init_trip_with_shop_and_product(request):
         shopId = request.GET.get('shopId', None)
         productCatId = request.GET.get('productCatId', None)
         if (cusId is None) | (shopId is None) | (productCatId is None) :
-            response = JsonResponse({'status': constants.VALUE_NULL})
+            response = JsonResponse({'status': c.VALUE_NULL})
         else:
             trans_id = transaction_factory.create_trans_id(cusId, shopId, productCatId)
             response = JsonResponse({'transactionId': trans_id})
@@ -189,13 +193,19 @@ def get_shop_asst(request):
         cusId = get_cusId( request.GET.get('cusId', None))
         trxId = request.GET.get('trxId', None)
         if (cusId is None) | (trxId is None):
-            response = JsonResponse({'status': constants.VALUE_NULL})
+            response = JsonResponse({'status': c.VALUE_NULL})
         else:
-            #Commit review to DB
-            #data  = query_exec.test_custom_sql()
-            #json_data = serializers.serialize('json', data)
-            #response = JsonResponse({json_data})
-                response = JsonResponse({'shopAsstId':1,'shopAsstName': "Tracy", 'shopAsstDesc':"Tracy sells shoes"})
+            trans_obj = CustomerTransaction.objects.get(TRANSACTION_ID = trxId)
+            shop_id = trans_obj.SHOP_ID
+            asst_id = r.recommend_shop_asst(shop_id)
+            asst_obj = Assistance.objects.get(ASST_ID = asst_id)
+            asst_name = asst_obj.ASST_NAME
+            asst_desc = "Gender:" +  asst_obj.GENDER + ", Main Language:" + asst_obj.PREF_LANG_1
+            asst_photo_url = asst_obj.PHOTO_URL
+            if asst_photo_url is None:
+                asst_photo_url = c.NO_PHOTO_URL
+            print('shopAsstId',asst_id,'shopAsstName', asst_name, 'shopAsstDesc',asst_desc)
+            response = JsonResponse({'shopAsstId':int(asst_id),'shopAsstName': asst_name, 'shopAsstDesc':asst_desc, 'photoUrl': asst_photo_url})
         return response
     else:
         raise Http404()
@@ -223,7 +233,6 @@ def customer_profile_create(request):
         instance = form.save(commit=False)
         instance.user = request.user
         instance.save()
-        # message success
         messages.success(request, "Successfully Created")
         return HttpResponseRedirect(instance.get_absolute_url())
     context = {
@@ -267,6 +276,7 @@ def test (request):
         result = rt.test(module_name)
         response = JsonResponse({'Result':result})
     return response
+    
 def get_cusId(cusId):
     if cusId=='bob':
         return 2

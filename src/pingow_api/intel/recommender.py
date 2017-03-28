@@ -328,7 +328,7 @@ def recommendation_by_shop_names(cust_selected_shop):
 #[2] retrieve transactions and calculate SA with rating
 def avg_rating_SA_by_des_shop (cust_destination):
     relv_trans =cust_trans_table[cust_trans_table.SHOP_ID == cust_destination]
-    relv_SA_rating = pd.DataFrame(relv_trans.groupby(relv_trans.SHOP_ASST_ID).SHOP_ASST_SVC.mean())
+    relv_SA_rating = pd.DataFrame(relv_trans.groupby(relv_trans.ASST_ID).ASST_SVC_RATE.mean())
     relv_SA_rating['ASST_ID'] = relv_SA_rating.index
     return relv_SA_rating
 
@@ -339,14 +339,14 @@ def avg_rating_SA_by_des_shop (cust_destination):
 def SA_availability_by_des_shop(cust_destination):
     rel_shop_ass_avail_only = shop_asst_table[shop_asst_table.SHOP_ID == cust_destination]
     rel_shop_ass_avail_only = pd.merge(shop_asst_avail_table,rel_shop_ass_avail_only , how = 'inner', on = ['ASST_ID','ASST_ID'])
-    shop_ass_avail = pd.DataFrame(rel_shop_ass_avail_only[rel_shop_ass_avail_only.AVAILABILITY == 'Y'])
+    shop_ass_avail = pd.DataFrame(rel_shop_ass_avail_only[rel_shop_ass_avail_only.AVAILABILITY == True])
     return shop_ass_avail
 
 #print (SA_availability_by_des_shop(cust_destination))
 
 #Function 11
 #[4] from those that are available, pick the one top rated
-def recommend_shop_asst ():
+def recommend_shop_asst (cust_destination):
     load_data()
     x = SA_availability_by_des_shop(cust_destination)
     y = avg_rating_SA_by_des_shop (cust_destination)
