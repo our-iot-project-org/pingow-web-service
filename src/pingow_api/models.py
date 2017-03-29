@@ -1,7 +1,6 @@
 from django.db import models
 import django_tables2 as tables
 from .core import constants as c
-
 # Create your models here.
 
 
@@ -70,8 +69,11 @@ class Assistance(models.Model):
     TRAINED_LEVEL = models.CharField(max_length = 25,null=True)
     PRODUCT_SKILL = models.CharField(max_length = 250,null=True)
     PHOTO_URL = models.CharField(max_length = 500,null=True)
+    def get_absolute_url(self):
+        return '#'
     class Meta:
         db_table = 'pg_assistance'
+
 
 class Crowd(models.Model):
     CROWD_LEVEL_CHOICES = (
@@ -87,8 +89,8 @@ class Crowd(models.Model):
 
 class AssistanceAvail(models.Model):
     ASST_ID = models.IntegerField(primary_key=True)
-    TIME_IN  = models.DateField(null=True)
-    TIME_OUT = models.DateField(null=True)
+    TIME_IN  = models.DateTimeField(null=True)
+    TIME_OUT = models.DateTimeField(null=True)
     AVAILABILITY = models.BooleanField()
     class Meta:
         db_table = 'pg_assistance_avail'
@@ -119,6 +121,8 @@ class CustomerTransaction(models.Model):
     ASST_SVC_RATE = models.IntegerField(null=True)
     OVERALL_RATE = models.DecimalField(max_digits=10,decimal_places=2, null=True)
     COMMENTS = models.TextField(blank=True, null=True)
+    def get_absolute_url(self):
+        return '#'
     class Meta:
         db_table = 'pg_customer_trans'
 
@@ -131,3 +135,25 @@ class CustomerTransactionTable(tables.Table):
     class Meta:
         model = CustomerTransaction
         attrs = {'class': 'table table-hover'}
+
+class ShopTable(tables.Table):
+    class Meta:
+        model = Shop
+        attrs = {'class': 'table table-hover'}
+
+class SubCategoryTable(tables.Table):
+    class Meta:
+        model = SubCategory
+        attrs = {'class': 'table table-hover'}
+
+class AssistanceAvailTable(tables.Table):
+    class Meta:
+        model = AssistanceAvail
+        attrs = {'class': 'table table-hover'}
+
+class AssistanceTable(tables.Table):
+    class Meta:
+        model = Assistance
+        attrs = {
+            'class': 'table table-hover'
+        }

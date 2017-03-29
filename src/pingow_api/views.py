@@ -4,7 +4,6 @@ from .core import console_print
 from .core import query_exec
 from .core import constants as c
 from .core import transaction_factory
-from .forms import CustomerCreationForm
 from .models import Customer, CustomerTransaction, Assistance
 from .models import CustomerTable, CustomerTransactionTable
 from .intel import recommender as r
@@ -48,7 +47,7 @@ def position_update(request):
     if request.method == 'GET':
         target = request.GET.get('targetPos', None)
         current = request.GET.get('currentPos', None)
-        cusId = get_cusId( request.GET.get('cusId', None))
+        cusId =  request.GET.get('cusId', None)
         trxId = request.GET.get('trxId', None)
         is_asst_needed = request.GET.get('asst', None)
         if (target is None) | (current is None) | (cusId is None) | (trxId is None) | (is_asst_needed is None):
@@ -86,7 +85,7 @@ def position_update(request):
 # Response: # [success:True]
 def send_review(request):
     if request.method == 'GET':
-        cusId = get_cusId( request.GET.get('cusId', None))
+        cusId = request.GET.get('cusId', None)
         shopId = request.GET.get('shopId', None)
         shopStar = request.GET.get('shopStar', None)
         shopAsstStar = request.GET.get('shopAsstStar', None)
@@ -109,7 +108,7 @@ def send_review(request):
 # [shops: [2,3,5]]
 def get_recommendation_for_shop(request):
     if request.method == 'GET':
-        cusId = get_cusId( request.GET.get('cusId', None))
+        cusId = request.GET.get('cusId', None)
         shopId = request.GET.get('shopId', None)
         if (cusId is None) | (shopId is None):
             response = JsonResponse({'status': c.VALUE_NULL})
@@ -129,7 +128,7 @@ def get_recommendation_for_shop(request):
 # [shops: [2,3,5]]
 def get_recommendation_for_product(request):
     if request.method == 'GET':
-        cusId = get_cusId( request.GET.get('cusId', None))
+        cusId = request.GET.get('cusId', None)
         productCatId = request.GET.get('productCatId', None)
         if (cusId is None) | (productCatId is None):
             response = JsonResponse({'status': c.VALUE_NULL})
@@ -147,7 +146,7 @@ def get_recommendation_for_product(request):
 # [transactionId: 1]
 def init_trip_with_shop(request):
     if request.method == 'GET':
-        cusId = get_cusId( request.GET.get('cusId', None))
+        cusId = request.GET.get('cusId', None)
         shopId = request.GET.get('shopId', None)
         if (cusId is None) | (shopId is None):
             response = JsonResponse({'status': c.VALUE_NULL})
@@ -166,7 +165,7 @@ def init_trip_with_shop(request):
 # [transactionId: 1]
 def init_trip_with_shop_and_product(request):
     if request.method == 'GET':
-        cusId = get_cusId( request.GET.get('cusId', None))
+        cusId = request.GET.get('cusId', None)
         shopId = request.GET.get('shopId', None)
         productCatId = request.GET.get('productCatId', None)
         if (cusId is None) | (shopId is None) | (productCatId is None) :
@@ -190,7 +189,7 @@ def init_trip_with_shop_and_product(request):
 # shopAsstId:1
 def get_shop_asst(request):
     if request.method == 'GET':
-        cusId = get_cusId( request.GET.get('cusId', None))
+        cusId = request.GET.get('cusId', None)
         trxId = request.GET.get('trxId', None)
         if (cusId is None) | (trxId is None):
             response = JsonResponse({'status': c.VALUE_NULL})
@@ -225,50 +224,6 @@ def api_post(request):
     else:
         raise Http404()
 
-def customer_profile_create(request):
-    if not request.user.is_staff or not request.user.is_superuser:
-        raise PermissionDenied("Please login as Admin/Staff role to access this page.")
-
-    form = CustomerCreationForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        instance = form.save(commit=False)
-        instance.user = request.user
-        instance.save()
-        messages.success(request, "Successfully Created")
-        return HttpResponseRedirect(instance.get_absolute_url())
-    context = {
-        "form": form,
-        "title" : "Create Customer Profile"
-    }
-    return render(request, "form.html", context)
-
-
-def db_view_customer(request):
-    if not request.user.is_staff or not request.user.is_superuser:
-        raise PermissionDenied("Please login as Admin/Staff role to access this page.")
-
-    queryset = Customer.objects.all()
-    data_table = CustomerTable(queryset)
-
-    context = {
-        "table" : data_table,
-        "title" : "CUSTOMER TABLE"
-    }
-    return render(request, "db_view.html", context)
-
-def db_view_customer_trans(request):
-    if not request.user.is_staff or not request.user.is_superuser:
-        raise PermissionDenied("Please login as Admin/Staff role to access this page.")
-
-    queryset = CustomerTransaction.objects.all()
-    data_table = CustomerTransactionTable(queryset)
-
-    context = {
-        "table" : data_table,
-        "title" : "CUSTOMER TRANSACTION TABLE"
-    }
-    return render(request, "db_view.html", context)
-
 def test (request):
     module_name = request.GET.get('module', None)
     if (module_name is None):
@@ -277,6 +232,3 @@ def test (request):
         result = rt.test(module_name)
         response = JsonResponse({'Result':result})
     return response
-
-def get_cusId(cusId):
-    return cusId
