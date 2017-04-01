@@ -47,6 +47,8 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *,cover
+*.DS_Store
+*.bak
 
 # Translations
 *.mo
@@ -66,3 +68,4 @@ src/posts/core/para.py
 Scripts/
 
 src/pingow_api/core/para.py
+no-sync
