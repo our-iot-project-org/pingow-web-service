@@ -95,6 +95,7 @@ def send_review(request):
             response = JsonResponse({'success': False})
         else:
             #Commit review to DB
+            print("update trans commit>>:", 'trxId', trxId,'cusId',cusId,'shopId',shopId,'shopStar',shopStar,"shopAsstStar",shopAsstStar,"reviewText",reviewText )
             status = transaction_factory.update_trans(trxId, cusId, shopId, shopStar, shopAsstStar, reviewText)
             response = JsonResponse({'success': status})
         return response
@@ -205,6 +206,7 @@ def get_shop_asst(request):
             if asst_photo_url is None:
                 asst_photo_url = c.NO_PHOTO_URL
             print('shopAsstId',asst_id,'shopAsstName', asst_name, 'shopAsstDesc',asst_desc)
+            transaction_factory.update_trans_asst_id(trxId, asst_id)
             response = JsonResponse({'shopAsstId':int(asst_id),'shopAsstName': asst_name, 'shopAsstDesc':asst_desc, 'photoUrl': asst_photo_url})
         return response
     else:
