@@ -4,7 +4,7 @@ from .core import console_print
 from .core import query_exec
 from .core import constants as c
 from .core import transaction_factory
-from .models import Customer, CustomerTransaction, Assistance
+from .models import Customer, CustomerTransaction, Assistance, Crowd
 from .models import CustomerTable, CustomerTransactionTable
 from .intel import recommender as r
 from .intel import recommender_test as rt
@@ -95,7 +95,6 @@ def send_review(request):
             response = JsonResponse({'success': False})
         else:
             #Commit review to DB
-            print("update trans commit>>:", 'trxId', trxId,'cusId',cusId,'shopId',shopId,'shopStar',shopStar,"shopAsstStar",shopAsstStar,"reviewText",reviewText )
             status = transaction_factory.update_trans(trxId, cusId, shopId, shopStar, shopAsstStar, reviewText)
             response = JsonResponse({'success': status})
         return response
@@ -115,9 +114,14 @@ def get_recommendation_for_shop(request):
             response = JsonResponse({'status': c.VALUE_NULL})
         else:
             rec_shops = r.recommendation_by_shop_names(int(shopId))
-            rec_shopx = list(rec_shops)
-            response = JsonResponse({'shops': rec_shops})
-            print(rec_shops)
+            records = []
+            rec_len = len(rec_shops)
+            for i  in range (0,rec_len):
+                crowdObj = Crowd.objects.get(SHOP_ID = rec_shops[i])
+                crowLevel = int(crowdObj.CROWD_LEVEL)
+                record = {'shop': rec_shops[i] , 'crowdLevel': crowLevel}
+                records.append(record)
+            response = JsonResponse(records,safe=False)
         return response
     else:
         raise Http404()
@@ -135,7 +139,14 @@ def get_recommendation_for_product(request):
             response = JsonResponse({'status': c.VALUE_NULL})
         else:
             rec_shops = r.recommendation_by_pdt_cat(int(cusId),int(productCatId))
-            response = JsonResponse({'shops': rec_shops})
+            records = []
+            rec_len = len(rec_shops)
+            for i  in range (0,rec_len):
+                crowdObj = Crowd.objects.get(SHOP_ID = rec_shops[i])
+                crowLevel = int(crowdObj.CROWD_LEVEL)
+                record = {'shop': rec_shops[i] , 'crowdLevel': crowLevel}
+                records.append(record)
+            response = JsonResponse(records,safe=False)
         return response
     else:
         raise Http404()
@@ -206,7 +217,6 @@ def get_shop_asst(request):
             if asst_photo_url is None:
                 asst_photo_url = c.NO_PHOTO_URL
             print('shopAsstId',asst_id,'shopAsstName', asst_name, 'shopAsstDesc',asst_desc)
-            transaction_factory.update_trans_asst_id(trxId, asst_id)
             response = JsonResponse({'shopAsstId':int(asst_id),'shopAsstName': asst_name, 'shopAsstDesc':asst_desc, 'photoUrl': asst_photo_url})
         return response
     else:
