@@ -77,13 +77,13 @@ class Assistance(models.Model):
 
 class Crowd(models.Model):
     CROWD_LEVEL_CHOICES = (
-        (1, 'Green'),
-        (2, 'Orange'),
-        (3, 'Red'),
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
     )
     CROWD_ID =  models.AutoField(primary_key=True)
     SHOP_ID = models.IntegerField(null=True)
-    CROWD_LEVEL = models.IntegerField(choices=CROWD_LEVEL_CHOICES, default=1, null=True)
+    CROWD_LEVEL = models.CharField(max_length = 10, choices=CROWD_LEVEL_CHOICES, default='low', null=True)
     class Meta:
         db_table = 'pg_crowd'
 

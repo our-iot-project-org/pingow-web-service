@@ -118,7 +118,7 @@ def get_recommendation_for_shop(request):
             rec_len = len(rec_shops)
             for i  in range (0,rec_len):
                 crowdObj = Crowd.objects.get(SHOP_ID = rec_shops[i])
-                crowLevel = int(crowdObj.CROWD_LEVEL)
+                crowLevel = crowdObj.CROWD_LEVEL
                 record = {'shop': rec_shops[i] , 'crowdLevel': crowLevel}
                 records.append(record)
             response = JsonResponse(records,safe=False)
@@ -143,7 +143,7 @@ def get_recommendation_for_product(request):
             rec_len = len(rec_shops)
             for i  in range (0,rec_len):
                 crowdObj = Crowd.objects.get(SHOP_ID = rec_shops[i])
-                crowLevel = int(crowdObj.CROWD_LEVEL)
+                crowLevel = crowdObj.CROWD_LEVEL
                 record = {'shop': rec_shops[i] , 'crowdLevel': crowLevel}
                 records.append(record)
             response = JsonResponse(records,safe=False)
