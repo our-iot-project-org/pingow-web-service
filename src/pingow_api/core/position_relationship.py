@@ -32,14 +32,19 @@ def get_position_relationship(positionA, positionB):
 movement_status_dict = {'trans_id': 'status_outside_enter_exit'}
 def update_position_status(trans_id, currentPos, targetPos):
     global movement_status_dict
+    print('Before IF',movement_status_dict)
     if (trans_id in movement_status_dict):
+        print('After IF',movement_status_dict)
         if (currentPos == targetPos):
+            print('Compare = ',movement_status_dict)
             # When reach shop, update to enter.
             movement_status_dict[trans_id] = constants.POSITION_STATUS_ENTER
         elif (movement_status_dict[trans_id]== constants.POSITION_STATUS_ENTER):
+            print('Mark Enter',movement_status_dict)
             # if current status is enter, update to exit. else ignore.
             movement_status_dict[trans_id] = constants.POSITION_STATUS_EXIT
     else:
+        print('Else',movement_status_dict)
         movement_status_dict[trans_id] = constants.POSITION_STATUS_OUTSIDE
 
 def get_position_status(trans_id):
