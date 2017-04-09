@@ -108,6 +108,11 @@ class SubCategory(models.Model):
     class Meta:
         db_table = 'pg_sub_cat'
 
+class CustomerTransactionStatus(models.Model):
+    TRANSACTION_ID = models.IntegerField(primary_key=True)
+    STATUS  = models.CharField(max_length = 50,null=True)
+    class Meta:
+        db_table = 'pg_customer_trans_status'
 
 class CustomerTransaction(models.Model):
     TRANSACTION_ID = models.IntegerField(primary_key=True)

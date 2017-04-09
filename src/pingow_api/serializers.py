@@ -119,3 +119,11 @@ class CustomerTransactionSerializer(ModelSerializer):
             'OVERALL_RATE',
             'COMMENTS',
         ]
+
+class CustomerTransactionStatusSerializer(ModelSerializer):
+    class Meta:
+        model = m.CustomerTransactionStatus
+        fields = [
+            'TRANSACTION_ID',
+            'STATUS',
+        ]

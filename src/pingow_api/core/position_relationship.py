@@ -1,5 +1,5 @@
 from . import constants
-
+from pingow_api import models as m
 
 def get_position_relationship(positionA, positionB):
     relationship = constants.POSITION_REL_NO
@@ -28,8 +28,6 @@ def get_position_relationship(positionA, positionB):
         return constants.POSITION_REL_TARGET
     return constants.VALUE_UNDEFINED
 
-movement_status_dict = {}
-
 def update_position_status(trans_id, currentPos, targetPos):
     print('---------------------------------------------')
 
@@ -37,53 +35,33 @@ def update_position_status(trans_id, currentPos, targetPos):
     # POSITION_STATUS_OUTSIDE = 'outside shop'
     # POSITION_STATUS_ENTER = 'enter shop'
     # POSITION_STATUS_EXIT = 'exit shop'
+    cus_trans_id_obj = m.CustomerTransactionStatus.objects.get(TRANSACTION_ID = trans_id)
+
 
     # checks if key exists
-    if trans_id not in movement_status_dict:
-        movement_status_dict[trans_id] = 'outside shop'
+    # if trans_id not in movement_status_dict:
+    #     movement_status_dict[trans_id] = 'outside shop'
 
-    else:
-        # get current status
-        status = movement_status_dict[trans_id]
-
-        if status == 'outside shop' and currentPos == targetPos:
-            movement_status_dict[trans_id] = 'enter shop'
-        elif status == 'enter shop' and currentPos != targetPos:
-            movement_status_dict[trans_id] = 'exit shop'
-        else:
-            movement_status_dict[trans_id] = 'outside shop'
-
-    print(movement_status_dict)
-
-    #
-    # print('update trans_id',trans_id)
-    #
-    # print('Before IF',movement_status_dict)
-    # if (trans_id in movement_status_dict):
-    #     print('After IF',movement_status_dict)
-    #     if (currentPos == targetPos):
-    #         print('Compare = ',movement_status_dict)
-    #         # When reach shop, update to enter.
-    #         movement_status_dict[trans_id] = constants.POSITION_STATUS_ENTER
-    #     elif (movement_status_dict[trans_id]== constants.POSITION_STATUS_ENTER):
-    #         print('Mark Enter',movement_status_dict)
-    #         # if current status is enter, update to exit. else ignore.
-    #         movement_status_dict[trans_id] = constants.POSITION_STATUS_EXIT
     # else:
-    #     print('Else',movement_status_dict)
-    #     movement_status_dict[trans_id] = constants.POSITION_STATUS_OUTSIDE
-    # print('---------------------------------------------')
-#
-# update_position_status(1,1,2) # nearby
-# update_position_status(1,2,2) # reached
-# update_position_status(1,3,2) # trigger exit
-# update_position_status(1,2,2) # should not be enter
-# update_position_status(1,3,2) # still be outside
-# update_position_status(1,1,2) # still be outside
+    # get current status
+    status = cus_trans_id_obj.STATUS
+    new_status = status
+    print("original status:",status, ", new status:",new_status)
+    if status == 'outside shop' and currentPos == targetPos:
+        new_status = 'enter shop'
+    elif status == 'enter shop' and currentPos != targetPos:
+        new_status = 'exit shop'
+    else:
+        new_status = 'outside shop'
+
+    print('update status: ',new_status)
+    cus_trans_id_obj.STATUS = new_status
+    cus_trans_id_obj.save(
+        update_fields = ['STATUS']
+    )
 
 def get_position_status(trans_id):
-    global movement_status_dict
-    if (trans_id in movement_status_dict):
-        return movement_status_dict[trans_id]
-    else:
-        return constants.POSITION_STATUS_OUTSIDE
+    cus_trans_id_obj = m.CustomerTransactionStatus.objects.get(TRANSACTION_ID = trans_id)
+    status = cus_trans_id_obj.STATUS
+    print('get position status:', status)
+    return cus_trans_id_obj.STATUS

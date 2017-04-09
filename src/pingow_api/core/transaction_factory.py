@@ -19,7 +19,12 @@ def create_trans_id(cusId, shopId, productCatId):
         OVERALL_RATE = 0,
         ASST_SVC_RATE = 0,
         )
+    new_trans_status = m.CustomerTransactionStatus(
+        TRANSACTION_ID = new_trans_id,
+        STATUS = 'outside shop'
+        )
     new_trans.save()
+    new_trans_status.save()
     # trans_id = next_trans_id + 1
     print('----- ----- returning trx ID:',new_trans_id,' | for cus :', cusId)
     return new_trans_id
