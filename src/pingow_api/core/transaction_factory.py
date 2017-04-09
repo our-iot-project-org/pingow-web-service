@@ -21,6 +21,7 @@ def create_trans_id(cusId, shopId, productCatId):
         )
     new_trans.save()
     # trans_id = next_trans_id + 1
+    print('----- ----- returning trx ID:',new_trans_id,' | for cus :', cusId)
     return new_trans_id
 
 
