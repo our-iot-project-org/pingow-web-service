@@ -31,6 +31,8 @@ def get_position_relationship(positionA, positionB):
 
 movement_status_dict = {'trans_id': 'status_outside_enter_exit'}
 def update_position_status(trans_id, currentPos, targetPos):
+    print('---------------------------------------------')
+    print('update trans_id',trans_id)
     global movement_status_dict
     print('Before IF',movement_status_dict)
     if (trans_id in movement_status_dict):
@@ -46,7 +48,7 @@ def update_position_status(trans_id, currentPos, targetPos):
     else:
         print('Else',movement_status_dict)
         movement_status_dict[trans_id] = constants.POSITION_STATUS_OUTSIDE
-
+    print('---------------------------------------------')
 def get_position_status(trans_id):
     global movement_status_dict
     if (trans_id in movement_status_dict):

@@ -58,7 +58,9 @@ def position_update(request):
             is_nearby = (rel==c.POSITION_REL_NEARBY)
             is_target = (rel==c.POSITION_REL_TARGET)
             #check if exit or not
+            print('****** update position status ****** ')
             position_relationship.update_position_status(trxId, current, target)
+            print('*************************************')
             is_exit = (position_relationship.get_position_status(trxId) == c.POSITION_STATUS_EXIT)
             is_notify = is_asst_needed and (not is_exit) and (is_nearby | is_target)
             trans_obj = CustomerTransaction.objects.get(TRANSACTION_ID = trxId)
