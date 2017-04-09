@@ -217,10 +217,12 @@ def get_shop_asst(request):
             if asst_photo_url is None:
                 asst_photo_url = c.NO_PHOTO_URL
             print('shopAsstId',asst_id,'shopAsstName', asst_name, 'shopAsstDesc',asst_desc)
+            transaction_factory.update_trans_asst_id(trxId, asst_id)
             response = JsonResponse({'shopAsstId':int(asst_id),'shopAsstName': asst_name, 'shopAsstDesc':asst_desc, 'photoUrl': asst_photo_url})
         return response
     else:
         raise Http404()
+
 
 body_text = ""
 @csrf_exempt
