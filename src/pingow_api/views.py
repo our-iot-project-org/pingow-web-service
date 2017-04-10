@@ -152,7 +152,7 @@ def get_recommendation_for_product(request):
         raise Http404()
 
 # /init_trip_with_shop?
-# cusId=bob&
+# cusId=1&
 # shopId=1
 # Response:
 # [transactionId: 1]

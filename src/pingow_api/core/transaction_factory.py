@@ -4,11 +4,18 @@ from pingow_api.core  import constants as c
 # trans_id = 0
 def create_trans_id(cusId, shopId, productCatId):
     # global trans_id
-    last_trans = m.CustomerTransaction.objects.all().order_by('-TRANSACTION_ID')
-    if len(last_trans) == 0:
-        new_trans_id = 1
-    else:
-        new_trans_id = last_trans[0].TRANSACTION_ID + 1
+    # last_trans = m.CustomerTransaction.objects.all().order_by('-TRANSACTION_ID')
+    # if len(last_trans) == 0:
+    #     new_trans_id = 1
+    # else:
+    #     new_trans_id = last_trans[0].TRANSACTION_ID + 1
+
+    #new trans id
+    random = int(datetime.datetime.now().strftime("%f")) % 100
+    print(random)
+    timestamp = datetime.datetime.now().strftime("%d%H%M%S")
+    new_trans_id = int(timestamp) + random
+
     #create new record
     new_trans = m.CustomerTransaction(
         TRANSACTION_ID = new_trans_id,
