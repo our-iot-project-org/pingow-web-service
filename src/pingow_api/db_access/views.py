@@ -96,7 +96,7 @@ def db_view_customer_trans(request):
     if not request.user.is_staff or not request.user.is_superuser:
         raise PermissionDenied("Please login as Admin/Staff role to access this page.")
 
-    queryset = m.CustomerTransaction.objects.all()
+    queryset = m.CustomerTransaction.objects.all().order_by('-TRANSACTION_ID')
     data_table = m.CustomerTransactionTable(queryset)
 
     context = {
@@ -109,7 +109,7 @@ def db_view_customer_trans_status(request):
     if not request.user.is_staff or not request.user.is_superuser:
         raise PermissionDenied("Please login as Admin/Staff role to access this page.")
 
-    queryset = m.CustomerTransactionStatus.objects.all()
+    queryset = m.CustomerTransactionStatus.objects.all().order_by('-TRANSACTION_ID')
     data_table = m.CustomerTransactionStatusTable(queryset)
 
     context = {
