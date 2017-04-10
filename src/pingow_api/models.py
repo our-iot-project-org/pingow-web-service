@@ -141,6 +141,11 @@ class CustomerTransactionTable(tables.Table):
         model = CustomerTransaction
         attrs = {'class': 'table table-hover'}
 
+class CustomerTransactionStatusTable(tables.Table):
+    class Meta:
+        model = CustomerTransactionStatus
+        attrs = {'class': 'table table-hover'}
+
 class ShopTable(tables.Table):
     class Meta:
         model = Shop

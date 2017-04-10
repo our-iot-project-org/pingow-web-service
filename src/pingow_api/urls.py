@@ -32,6 +32,7 @@ urlpatterns = [
 	url(r'^db_access/table/sub_category/$',dbv.db_view_sub_category),
 	url(r'^db_access/table/assistance_avail/$',dbv.db_view_assistance_avail, name = 'assistance_avail_view'),
 	url(r'^db_access/table/assistance/$',dbv.db_view_assistance, name = 'assistance_view'),
+	url(r'^db_access/table/customer_trans_status/$',dbv.db_view_customer_trans_status),
 
 
 	#json access

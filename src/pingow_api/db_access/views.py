@@ -105,6 +105,19 @@ def db_view_customer_trans(request):
     }
     return render(request, "db_view.html", context)
 
+def db_view_customer_trans_status(request):
+    if not request.user.is_staff or not request.user.is_superuser:
+        raise PermissionDenied("Please login as Admin/Staff role to access this page.")
+
+    queryset = m.CustomerTransactionStatus.objects.all()
+    data_table = m.CustomerTransactionStatusTable(queryset)
+
+    context = {
+        "table" : data_table,
+        "title" : "CUSTOMER TRANSACTION STATUS TABLE"
+    }
+    return render(request, "db_view.html", context)
+
 def db_view_shop(request):
     if not request.user.is_staff or not request.user.is_superuser:
         raise PermissionDenied("Please login as Admin/Staff role to access this page.")
